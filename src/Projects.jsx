@@ -6,10 +6,11 @@ const Projects = () => {
     {
       title: "Projet de Fin d'Année",
       description: "Projet académique complet réalisé en fin de cycle, démontrant l'intégration de multiples technologies et concepts appris.",
-      technologies: ['HTML/CSS', 'PHP', 'MySQL', 'JavaScript'],
+      technologies: ['HTML/Tailwind CSS', 'React', 'MongoDB', 'JavaScript'],
       icon: Globe,
       gradient: 'from-blue-500 to-purple-600',
-      demoUrl: 'https://badiegmati.github.io/projet_FAC/'
+      demoUrl: 'https://badiegmati.github.io/Chi5a/',
+      code:'https://github.com/badiegmati/Chi5a'
     },
     {
       title: 'Système de Gestion de Base de Données',
