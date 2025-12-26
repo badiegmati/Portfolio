@@ -1,6 +1,7 @@
 import React from 'react';
-import { ExternalLink, Github, Code, Database, Globe } from 'lucide-react';
-
+import { ExternalLink, Github, Code, Database, Globe, GamepadIcon, Brain, Cpu, Download  } from 'lucide-react';
+import image1 from './assets/image1.png';
+import image3 from './assets/image4.png';
 const Projects = () => {
   const projects = [
     {
@@ -13,11 +14,21 @@ const Projects = () => {
       code:'https://github.com/badiegmati/Chi5a'
     },
     {
-      title: 'Système de Gestion de Base de Données',
-      description: 'Application desktop Java pour la gestion optimisée des données avec interface intuitive et requêtes SQL avancées.',
-      technologies: ['Java', 'SQL', 'Oracle'],
-      icon: Database,
-      gradient: 'from-green-500 to-blue-500'
+      title: '🎮 Tic-Tac-Toe AI - Jeu Python',
+      description: 'Jeu de morpion avec intelligence artificielle avancée. Interface Kivy professionnelle avec 3 niveaux de difficulté et algorithme Minimax.',
+      technologies: ['Python', 'Kivy', 'IA Minimax', 'Algorithmes', 'OOP'],
+      icon: GamepadIcon,
+      gradient: 'from-green-500 to-emerald-600',
+      demoUrl: '#tic-tac-toe-demo', // Ancre vers la section démo
+      code: 'https://github.com/badiegmati/TicTacToe-AI',
+      isPythonGame: true,
+      pythonFeatures: [
+        'Interface Kivy moderne',
+        '3 niveaux d\'IA (Facile à Très Difficile)',
+        'Algorithme Minimax optimisé',
+        'Système de score persistant',
+        'Choix symbole X/O'
+      ]
     },
     {
       title: 'Application Mobile Angular',
@@ -34,6 +45,101 @@ const Projects = () => {
       gradient: 'from-orange-500 to-red-500'
     }
   ];
+  
+    const showTicTacToeDemo = () => {
+      // Créer une modale
+      const modal = document.createElement('div');
+      modal.id = 'tic-tac-toe-modal';
+      modal.innerHTML = `
+        <div style="
+          position: fixed; 
+          top: 0; 
+          left: 0; 
+          width: 100%; 
+          height: 100%; 
+          background: rgba(0,0,0,0.9); 
+          z-index: 9999; 
+          display: flex; 
+          justify-content: center; 
+          align-items: center;
+          padding: 20px;
+        ">
+          <div style="
+            background: #1f2937; 
+            padding: 2rem; 
+            border-radius: 1rem; 
+            max-width: 900px; 
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+          ">
+            
+            <h3 style="color: white; font-size: 1.8rem; margin-bottom: 1rem; text-align: center;">
+              🎮 Tic-Tac-Toe AI - Démonstration
+            </h3>
+            
+            <p style="color: #9ca3af; margin-bottom: 1.5rem; text-align: center;">
+              Ce jeu Python nécessite une installation locale. Voici comment le tester :
+            </p>
+            
+            <div style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 1rem;
+              margin: 2rem 0;
+            ">
+              <div style="text-align: center;">
+                <img 
+                  src="${image1}" 
+                  alt="Interface du jeu"
+                  style="
+                    width: 100%; 
+                    max-width: 400px;
+                    border-radius: 10px; 
+                    border: 2px solid #334155;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                  "
+                />
+                <p style="color: #9ca3af; margin-top: 0.5rem; font-size: 0.9rem;">
+                  Interface du jeu
+                </p>
+              </div>
+              
+              <div style="text-align: center;">
+                <img 
+                  src="${image3}" 
+                  alt="Victoire"
+                  style="
+                    width: 100%; 
+                    max-width: 400px;
+                    border-radius: 10px; 
+                    border: 2px solid #334155;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                  "
+                />
+                <p style="color: #9ca3af; margin-top: 0.5rem; font-size: 0.9rem;">
+                  Écran de victoire
+                </p>
+              </div>
+            </div>
+            <div style="background: #111827; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+            <code style="color: #10b981; font-family: monospace;">
+              # Installation :<br>
+              git clone https://github.com/badiegmati/TicTacToe-AI.git<br>
+              cd TicTacToe-AI<br>
+              pip install kivy<br>
+              python main.py
+            </code>
+          </div>
+          <button onclick="document.getElementById('tic-tac-toe-modal').remove()" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer;">
+             Fermer
+          </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+  };
 
   return (
     <section id="projects" className="py-20 bg-gray-900">
@@ -86,17 +192,31 @@ const Projects = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex space-x-4">
-                  <button className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors duration-300 transform hover:scale-105">
+                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                  <a
+                    href={project.code}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors duration-300 transform hover:scale-105"
+                  >
                     <Github size={18} />
                     <span>Code</span>
-                  </button>
-                  {project.demoUrl ? (
+                  </a>
+                  
+                  {project.isPythonGame ? (
+                    <button
+                      onClick={showTicTacToeDemo}
+                      className="flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors duration-300 transform hover:scale-105"
+                    >
+                      <Cpu size={18} />
+                      <span>Voir Démo</span>
+                    </button>
+                  ) : project.demoUrl ? (
                     <a
                       href={project.demoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors duration-300 transform hover:scale-105"
+                      className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors duration-300 transform hover:scale-105"
                     >
                       <ExternalLink size={18} />
                       <span>Demo</span>
@@ -107,6 +227,15 @@ const Projects = () => {
                       <span>Demo</span>
                     </button>
                   )}
+                  {project.isPythonGame && (
+                    <a
+                      href="https://github.com/badiegmati/TicTacToe-AI/archive/refs/heads/main.zip"
+                      className="flex items-center justify-center space-x-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg transition-colors duration-300 transform hover:scale-105"
+                    >
+                      <Download size={18} />
+                      <span>Télécharger</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -115,6 +244,7 @@ const Projects = () => {
             </div>
           ))}
         </div>
+        
       </div>
     </section>
   );
