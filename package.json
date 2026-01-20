@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "build:prod": "vite build --base=/Portfolio/",
     "preview": "vite preview"
   },
   "dependencies": {

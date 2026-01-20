@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from './logo1.png';
+import cvPdf from '../public/pdf/CV-Badie-Gmati.pdf';
 
 export default function Hero() {
   const particlesRef = useRef(null);
@@ -17,7 +18,7 @@ export default function Hero() {
   // Télécharger le CV
   const downloadCV = () => {
     const link = document.createElement('a');
-    link.href = 'src/assets/images/CV-Badie-Gmati.pdf'; // Chemin vers votre fichier PDF
+    link.href = cvPdf; // Chemin vers votre fichier PDF
     link.download = 'CV-Badie-Gmati.pdf';
     document.body.appendChild(link);
     link.click();
