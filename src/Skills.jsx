@@ -22,7 +22,7 @@ import { FaNodeJs, FaReact, FaGitAlt, FaGithub,FaServer,FaTools,FaGlobe   } from
 import { BiLogoPostgresql } from "react-icons/bi";
 import { TbApi } from "react-icons/tb";
 import { Code, Database, Wrench, Smartphone } from 'lucide-react';
-
+import java from './assets/images/java.png';
 // Animation variants
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -193,9 +193,9 @@ const Skills = () => {
             icon: Code,
             color: "text-blue-400",
             skills: [
-                { icon: () => <img src="src/images/java.png" alt="Java" className="size-8" />, label: "Java", color: "text-red-500", gradient: "from-red-500/20 to-orange-500/20" },
-                { icon: () => <img src="src/images/python.png" alt="Python" className="size-8" />, label: "Python", color: "text-blue-400", gradient: "from-blue-500/20 to-cyan-500/20" },
-                { icon: () => <img src="src/images/c-.png" alt="C++" className="size-8" />, label: "C++", color: "text-blue-600", gradient: "from-blue-600/20 to-indigo-500/20" },
+                { icon: () => <img src="src/assets/images/java.png" alt="Java" className="size-8" />, label: "Java", color: "text-red-500", gradient: "from-red-500/20 to-orange-500/20" },
+                { icon: () => <img src="src/assets/images/python.png" alt="Python" className="size-8" />, label: "Python", color: "text-blue-400", gradient: "from-blue-500/20 to-cyan-500/20" },
+                { icon: () => <img src="src/assets/images/c-.png" alt="C++" className="size-8" />, label: "C++", color: "text-blue-600", gradient: "from-blue-600/20 to-indigo-500/20" },
                 { icon: SiJavascript, label: "Javascript", color: "text-yellow-400", gradient: "from-yellow-500/20 to-yellow-500/20" },
                 { icon: SiPhp, label: "PHP", color: "text-purple-500", gradient: "from-purple-500/20 to-pink-500/20" },
             ]
@@ -254,10 +254,10 @@ const Skills = () => {
             color: "text-blue-300",
             skills: [
                 { icon: SiDocker, label: "Docker", color: "text-blue-400", gradient: "from-blue-400/20 to-cyan-500/20" },
-                { icon: () => <img src="src/images/figma.png" alt="figma" className="size-8" />, label: "Figma", color: "text-purple-400", gradient: "from-purple-400/20 to-pink-500/20" },
-                { icon: () => <img src="src/images/vscode.png" alt="VS Code" className="size-8" />, label: "VS Code", color: "text-blue-500", gradient: "from-blue-500/20 to-cyan-500/20" },
-                { icon: () => <img src="src/images/linux.png" alt="Linux" className="size-8" />, label: "Linux", color: "text-yellow-500", gradient: "from-yellow-500/20 to-orange-500/20" },
-                { icon: () => <img src="src/images/iot.png" alt="IoT" className="size-8" />, label: "IoT", color: "text-blue-300", gradient: "from-blue-300/20 to-indigo-400/20" },
+                { icon: () => <img src="src/assets/images/figma.png" alt="figma" className="size-8" />, label: "Figma", color: "text-purple-400", gradient: "from-purple-400/20 to-pink-500/20" },
+                { icon: () => <img src="src/assets/images/vscode.png" alt="VS Code" className="size-8" />, label: "VS Code", color: "text-blue-500", gradient: "from-blue-500/20 to-cyan-500/20" },
+                { icon: () => <img src="src/assets/images/linux.png" alt="Linux" className="size-8" />, label: "Linux", color: "text-yellow-500", gradient: "from-yellow-500/20 to-orange-500/20" },
+                { icon: () => <img src="src/assets/images/iot.png" alt="IoT" className="size-8" />, label: "IoT", color: "text-blue-300", gradient: "from-blue-300/20 to-indigo-400/20" },
             ]
         }
     ];

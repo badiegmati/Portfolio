@@ -17,7 +17,7 @@ export default function Hero() {
   // Télécharger le CV
   const downloadCV = () => {
     const link = document.createElement('a');
-    link.href = 'src/images/cv badie gmati.pdf'; // Chemin vers votre fichier PDF
+    link.href = 'src/assets/images/CV-Badie-Gmati.pdf'; // Chemin vers votre fichier PDF
     link.download = 'CV-Badie-Gmati.pdf';
     document.body.appendChild(link);
     link.click();
