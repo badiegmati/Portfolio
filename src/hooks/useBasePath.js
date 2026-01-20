@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+
 export const useBasePath = () => {
   const isProduction = useMemo(() => {
     return window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
