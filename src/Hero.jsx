@@ -9,7 +9,7 @@ import {
   useMotionValue, useSpring, useTransform
 } from 'framer-motion';
 import logo from './logo1.png';
-import cvPdf from '../public/pdf/CV-Badie-Gmati.pdf';
+import cvPdf from '../public/pdf/CV_Badie_Gmati_final.pdf';
 
 /* ─────────────────────────── constants ─────────────────────────── */
 const EASE_OUT_EXPO = [0.16, 1, 0.3, 1];
