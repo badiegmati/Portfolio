@@ -32,8 +32,8 @@ const NAV_LINKS = [
 ];
 
 const STATS = [
-  { icon: Code,    value: '30+',       label: 'Technologies', color: 'text-blue-400',   grad: 'from-blue-400 to-cyan-400'    },
-  { icon: Globe,   value: '5+',        label: 'Projets',      color: 'text-purple-400', grad: 'from-purple-400 to-pink-400'  },
+  { icon: Code,    value: '44+',       label: 'Technologies', color: 'text-blue-400',   grad: 'from-blue-400 to-cyan-400'    },
+  { icon: Globe,   value: '6+',        label: 'Projets',      color: 'text-purple-400', grad: 'from-purple-400 to-pink-400'  },
   { icon: Cpu,     value: 'Edge AI',   label: 'Spécialité',   color: 'text-violet-400', grad: 'from-violet-400 to-indigo-400'},
   { icon: Coffee,  value: '∞',         label: 'Cafés',        color: 'text-amber-400',  grad: 'from-amber-400 to-orange-400' },
 ];
