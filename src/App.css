@@ -1,1 +1,72 @@
+/* App.css */
 @import "tailwindcss";
+
+/* ══════════════════════════════════════════════
+   ANIMATIONS GLOBALES — définies une seule fois
+   (évite la duplication dans chaque composant)
+══════════════════════════════════════════════ */
+
+/* Gradient animé pour titres et logo */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0%   50%; }
+  50%      { background-position: 200% 50%; }
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 4s ease infinite;
+}
+
+/* Shimmer pour barres de progression */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%);  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════
+   ORBES CSS — remplace les motion.div Framer
+   (CSS animation = GPU, pas de JS overhead)
+══════════════════════════════════════════════ */
+
+@keyframes orb-float-a {
+  0%, 100% { transform: translate(0px, 0px) scale(1);     }
+  33%      { transform: translate(60px, 40px) scale(1.1); }
+  66%      { transform: translate(-30px, 55px) scale(0.95); }
+}
+
+@keyframes orb-float-b {
+  0%, 100% { transform: translate(0px, 0px) scale(1);       }
+  33%      { transform: translate(-70px, -50px) scale(1.08); }
+  66%      { transform: translate(40px, -30px) scale(1.12);  }
+}
+
+@keyframes orb-float-c {
+  0%, 100% { transform: translate(0px, 0px) scale(1);      }
+  50%      { transform: translate(45px, -35px) scale(1.15); }
+}
+
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0.042;
+  filter: blur(110px);
+  will-change: transform;
+}
+
+.orb-a { animation: orb-float-a 26s ease-in-out infinite alternate; }
+.orb-b { animation: orb-float-b 32s ease-in-out infinite alternate; }
+.orb-c { animation: orb-float-c 22s ease-in-out infinite alternate; }
+
+/* Pause animations si page cachée (économie CPU) */
+@media (prefers-reduced-motion: reduce) {
+  .orb,
+  .animate-gradient-x,
+  .animate-shimmer {
+    animation: none !important;
+  }
+}

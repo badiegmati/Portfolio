@@ -1,279 +1,507 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+// Hero.jsx — Ultra Professional · Zero Lag · Cohérent GlobalBackground
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import {
   ChevronDown, Github, Linkedin, Mail, Phone,
   Download, Cpu, Code2, Terminal, ArrowRight,
-  MapPin, Award, Zap, Globe, Star, Layers
-} from 'lucide-react';
+  MapPin, Award, Globe, Star, Layers, Sparkles,
+} from 'lucide-react'
 import {
   motion, AnimatePresence, useReducedMotion,
-  useMotionValue, useSpring, useTransform
-} from 'framer-motion';
-import logo from './logo1.png';
-import cvPdf from '../public/pdf/CV_Badie_Gmati_final.pdf';
+  useMotionValue, useSpring,
+} from 'framer-motion'
+import logo from './logo1.png'
 
-/* ─────────────────────────── constants ─────────────────────────── */
-const EASE_OUT_EXPO = [0.16, 1, 0.3, 1];
+/* ═══════════════════════════════════════════════
+   CV URL — Vite public/ folder
+═══════════════════════════════════════════════ */
+const CV_URL = `${import.meta.env.BASE_URL}pdf/CV_Badie_Gmati_final.pdf`
+
+/* ═══════════════════════════════════════════════
+   CSS INJECTION — palette GlobalBackground
+   #3b82f6 · #8b5cf6 · #06b6d4 · #6366f1
+═══════════════════════════════════════════════ */
+const HERO_CSS = `
+  @keyframes h-grad {
+    0%,100% { background-position: 0% 50% }
+    50%      { background-position: 100% 50% }
+  }
+  @keyframes h-spin-cw  { to { transform: rotate(360deg)  } }
+  @keyframes h-spin-ccw { to { transform: rotate(-360deg) } }
+  @keyframes h-pulse-dot {
+    0%,100% { transform: scale(1);   opacity: .9 }
+    50%     { transform: scale(1.35); opacity: .5 }
+  }
+  @keyframes h-float-a {
+    0%,100% { transform: translateY(0) rotate(0deg)  }
+    50%     { transform: translateY(-14px) rotate(3deg) }
+  }
+  @keyframes h-float-b {
+    0%,100% { transform: translateY(0) rotate(0deg)  }
+    50%     { transform: translateY(-18px) rotate(-3deg) }
+  }
+  @keyframes h-scan {
+    0%   { transform: translateY(-100%) }
+    100% { transform: translateY(500%)  }
+  }
+  @keyframes h-shimmer {
+    0%   { transform: translateX(-100%) skewX(-12deg) }
+    100% { transform: translateX(220%)  skewX(-12deg) }
+  }
+  @keyframes h-ping {
+    0%   { transform: scale(1);   opacity: .55 }
+    100% { transform: scale(2.2); opacity: 0   }
+  }
+  @keyframes h-orbit {
+    to { transform: rotate(360deg) }
+  }
+
+  .h-grad {
+    background-size: 280% 280%;
+    animation: h-grad 5s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .h-spin-cw  { animation: h-spin-cw  18s linear infinite }
+  .h-spin-ccw { animation: h-spin-ccw 12s linear infinite }
+  .h-float-a  { animation: h-float-a  4s ease-in-out infinite }
+  .h-float-b  { animation: h-float-b  5s ease-in-out infinite }
+  .h-orbit    { animation: h-orbit    12s linear infinite }
+  .h-ping     { animation: h-ping     2.4s ease-out infinite }
+  .h-pulse-dot{ animation: h-pulse-dot 2s ease-in-out infinite }
+
+  /* Download button shimmer */
+  .h-btn-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+    transform: translateX(-100%) skewX(-12deg);
+    pointer-events: none;
+  }
+  .h-btn-shimmer:hover::after {
+    animation: h-shimmer .65s ease forwards;
+  }
+
+  /* Stat card hover */
+  .h-stat {
+    transition: transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s ease;
+    will-change: transform;
+  }
+  .h-stat:hover {
+    transform: translateY(-5px) scale(1.04);
+    box-shadow: 0 12px 28px rgba(0,0,0,.4);
+  }
+
+  /* Social icon */
+  .h-social {
+    transition: transform .24s cubic-bezier(.34,1.56,.64,1);
+    will-change: transform;
+  }
+  .h-social:hover { transform: translateY(-4px) scale(1.18) }
+  .h-social:active{ transform: scale(.9); transition-duration: .1s }
+
+  /* Badge floating */
+  .h-badge-a { animation: h-float-a 4.2s ease-in-out infinite }
+  .h-badge-b { animation: h-float-b 5.1s ease-in-out infinite }
+  .h-badge-c { animation: h-float-a 3.8s ease-in-out infinite }
+  .h-badge-d { animation: h-float-b 4.6s ease-in-out infinite }
+
+  /* Scroll indicator */
+  .h-scroll-mouse {
+    transition: border-color .3s ease;
+  }
+  .h-scroll-mouse:hover { border-color: rgba(99,102,241,.6) }
+
+  @media (prefers-reduced-motion: reduce) {
+    .h-grad, .h-spin-cw, .h-spin-ccw, .h-float-a, .h-float-b,
+    .h-orbit, .h-ping, .h-pulse-dot, .h-badge-a, .h-badge-b,
+    .h-badge-c, .h-badge-d, .h-stat, .h-social {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+`
+
+function StyleInject() {
+  useEffect(() => {
+    const ID = 'hero-styles-v2'
+    if (document.getElementById(ID)) return
+    const el = document.createElement('style')
+    el.id = ID; el.textContent = HERO_CSS
+    document.head.appendChild(el)
+    return () => document.getElementById(ID)?.remove()
+  }, [])
+  return null
+}
+
+/* ═══════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════ */
+const EXPO = [0.16, 1, 0.3, 1]
+const BACK = [0.34, 1.56, 0.64, 1]
 
 const FLOATING_BADGES = [
-  { icon: Code2,    label: 'Full-Stack',  color: 'from-blue-500/20 to-blue-600/10',   border: 'border-blue-500/30',   text: 'text-blue-400',   glow: 'shadow-blue-500/20',   pos: { top: '18%', left: '4%'  } },
-  { icon: Cpu,      label: 'Edge AI',     color: 'from-purple-500/20 to-purple-600/10',border: 'border-purple-500/30', text: 'text-purple-400', glow: 'shadow-purple-500/20', pos: { top: '55%', left: '2%'  } },
-  { icon: Terminal, label: 'DevOps',      color: 'from-cyan-500/20 to-cyan-600/10',    border: 'border-cyan-500/30',   text: 'text-cyan-400',   glow: 'shadow-cyan-500/20',   pos: { top: '18%', right: '4%' } },
-  { icon: Layers,   label: 'Microservices', color: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30', text: 'text-emerald-400', glow: 'shadow-emerald-500/20', pos: { top: '55%', right: '2%' } },
-];
+  {
+    icon: Code2, label: 'Full-Stack',
+    cls: 'h-badge-a',
+    style: { top: '16%', left: '3%' },
+    border: 'rgba(59,130,246,.28)', bg: 'rgba(59,130,246,.1)', color: '#60a5fa',
+  },
+  {
+    icon: Cpu, label: 'Edge AI',
+    cls: 'h-badge-b',
+    style: { top: '58%', left: '2%' },
+    border: 'rgba(139,92,246,.28)', bg: 'rgba(139,92,246,.1)', color: '#a78bfa',
+  },
+  {
+    icon: Terminal, label: 'DevOps',
+    cls: 'h-badge-c',
+    style: { top: '16%', right: '3%' },
+    border: 'rgba(6,182,212,.28)', bg: 'rgba(6,182,212,.1)', color: '#22d3ee',
+  },
+  {
+    icon: Layers, label: 'Microservices',
+    cls: 'h-badge-d',
+    style: { top: '58%', right: '2%' },
+    border: 'rgba(16,185,129,.28)', bg: 'rgba(16,185,129,.1)', color: '#34d399',
+  },
+]
 
 const STATS = [
-  { value: '17/20',  label: 'Mention Très Bien', icon: Award,  color: 'text-yellow-400' },
-  { value: '3+',     label: 'Projets majeurs',    icon: Star,   color: 'text-blue-400'   },
-  { value: 'Edge AI',label: 'Raspberry Pi',       icon: Cpu,    color: 'text-purple-400' },
-  { value: 'B1+',    label: 'EN · FR',            icon: Globe,  color: 'text-cyan-400'   },
-];
+  { value: '17/20',   label: 'Mention TB',     icon: Award, color: '#fbbf24' },
+  { value: '3+',      label: 'Projets majeurs', icon: Star,  color: '#60a5fa' },
+  { value: 'Edge AI', label: 'Raspberry Pi',    icon: Cpu,   color: '#a78bfa' },
+  { value: 'B1+',     label: 'EN · FR',         icon: Globe, color: '#22d3ee' },
+]
 
 const SOCIAL_LINKS = [
-  { href: 'https://github.com/badiegmati',                    icon: Github,   label: 'GitHub',   hover: 'group-hover:text-white'      },
-  { href: 'https://www.linkedin.com/in/badie-gmati-3168b535b/', icon: Linkedin, label: 'LinkedIn', hover: 'group-hover:text-blue-400'   },
-  { href: 'mailto:badiegmati11@gmail.com',                    icon: Mail,     label: 'Email',    hover: 'group-hover:text-emerald-400' },
-];
+  { href: 'https://github.com/badiegmati',                      icon: Github,   label: 'GitHub',   hoverColor: '#f1f5f9' },
+  { href: 'https://www.linkedin.com/in/badie-gmati-3168b535b/', icon: Linkedin, label: 'LinkedIn', hoverColor: '#60a5fa' },
+  { href: 'mailto:badiegmati11@gmail.com',                      icon: Mail,     label: 'Email',    hoverColor: '#34d399' },
+]
 
-/* ─────────────────────────── variants ──────────────────────────── */
-const containerVariants = {
+const ROLES = [
+  'Ingénieur Full-Stack',
+  'Développeur IA Embarquée',
+  'Architecte Microservices',
+  'Expert Edge AI · Raspberry Pi',
+]
+
+const INFO_PILLS = [
+  { icon: MapPin, text: 'Bouargoub, Nabeul, Tunisie', color: '#f87171' },
+  { icon: Mail,   text: 'badiegmati11@gmail.com',     color: '#60a5fa' },
+  { icon: Phone,  text: '+216 58 294 838',            color: '#4ade80' },
+]
+
+/* ═══════════════════════════════════════════════
+   MOTION VARIANTS
+═══════════════════════════════════════════════ */
+const containerVar = {
   hidden:  { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-  }
-};
-const itemVariants = {
-  hidden:  { opacity: 0, y: 24, filter: 'blur(8px)' },
-  visible: { opacity: 1, y: 0,  filter: 'blur(0px)',
-    transition: { duration: 0.7, ease: EASE_OUT_EXPO }
-  }
-};
+  visible: { opacity: 1, transition: { staggerChildren: 0.09, delayChildren: 0.18 } },
+}
+const itemVar = {
+  hidden:  { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EXPO } },
+}
 
-/* ─────────────────────────── cursor glow ───────────────────────── */
+/* ═══════════════════════════════════════════════
+   CURSOR GLOW — GPU only
+═══════════════════════════════════════════════ */
 function CursorGlow() {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 80, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 80, damping: 20 });
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const sx = useSpring(mx, { stiffness: 75, damping: 22 })
+  const sy = useSpring(my, { stiffness: 75, damping: 22 })
 
   useEffect(() => {
-    const move = (e) => { mouseX.set(e.clientX); mouseY.set(e.clientY); };
-    window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
-  }, [mouseX, mouseY]);
+    const fn = e => { mx.set(e.clientX); my.set(e.clientY) }
+    window.addEventListener('mousemove', fn, { passive: true })
+    return () => window.removeEventListener('mousemove', fn)
+  }, [mx, my])
 
   return (
     <motion.div
-      style={{ x: springX, y: springY, translateX: '-50%', translateY: '-50%' }}
-      className="pointer-events-none fixed top-0 left-0 z-0 w-[500px] h-[500px] rounded-full
-                 bg-gradient-radial from-blue-500/8 via-purple-500/4 to-transparent blur-3xl"
+      aria-hidden
+      style={{
+        x: sx, y: sy,
+        translateX: '-50%', translateY: '-50%',
+        position: 'fixed', top: 0, left: 0,
+        zIndex: 0, pointerEvents: 'none',
+        width: '520px', height: '520px',
+        borderRadius: '50%',
+        filter: 'blur(88px)',
+        background: 'radial-gradient(circle,rgba(99,102,241,.07),rgba(139,92,246,.04),transparent 70%)',
+        willChange: 'transform',
+      }}
     />
-  );
+  )
 }
 
-/* ─────────────────────────── animated grid ─────────────────────── */
-function GridBackground() {
+/* ═══════════════════════════════════════════════
+   GRID — cohérent GlobalBackground dot-grid
+═══════════════════════════════════════════════ */
+function HeroGrid() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* dot grid */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+      {/* dot grid identique GlobalBackground */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0"
         style={{
-          backgroundImage: 'radial-gradient(circle, #94a3b8 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
+          backgroundImage: 'radial-gradient(circle,rgba(148,163,184,.042) 1px,transparent 1px)',
+          backgroundSize: '28px 28px',
         }}
       />
-      {/* diagonal lines */}
+      {/* diagonal subtle */}
       <div
-        className="absolute inset-0 opacity-[0.025]"
+        className="absolute inset-0 opacity-[0.018]"
         style={{
-          backgroundImage: `linear-gradient(45deg, #3b82f6 0.5px, transparent 0.5px),
-                            linear-gradient(-45deg, #8b5cf6 0.5px, transparent 0.5px)`,
-          backgroundSize: '64px 64px',
+          backgroundImage: `
+            linear-gradient(45deg,  #6366f1 .5px, transparent .5px),
+            linear-gradient(-45deg, #8b5cf6 .5px, transparent .5px)
+          `,
+          backgroundSize: '60px 60px',
         }}
       />
     </div>
-  );
+  )
 }
 
-/* ─────────────────────────── orbs ──────────────────────────────── */
-function AnimatedOrbs({ reduced }) {
+/* ═══════════════════════════════════════════════
+   AMBIENT ORBS — palette GlobalBackground
+═══════════════════════════════════════════════ */
+function HeroOrbs({ reduced }) {
+  const orbs = [
+    { style: { top: '-12%', left: '-10%', width: 520, height: 520 }, colors: '#1e40af,#6d28d9', dur: 20, dx: 70, dy: 50 },
+    { style: { bottom: '-12%', right: '-10%', width: 440, height: 440 }, colors: '#7c3aed,#0e7490', dur: 26, dx: -65, dy: -55 },
+    { style: { top: '38%', left: '38%', width: 260, height: 260 }, colors: '#0891b2,#1e40af', dur: 16, dx: 35, dy: -35 },
+  ]
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {[
-        { class: 'top-[-10%] left-[-10%]  w-[600px] h-[600px]', from: 'blue-600', to: 'purple-600', dur: 20, dx: 80,  dy: 60  },
-        { class: 'bottom-[-10%] right-[-10%] w-[500px] h-[500px]', from: 'purple-600', to: 'pink-600',   dur: 25, dx: -80, dy: -60 },
-        { class: 'top-[40%] left-[40%]   w-[300px] h-[300px]', from: 'cyan-600', to: 'blue-600',   dur: 15, dx: 40,  dy: -40 },
-      ].map((orb, i) => (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+      {orbs.map((o, i) => (
         <motion.div
           key={i}
-          animate={reduced ? {} : { x: [0, orb.dx, 0], y: [0, orb.dy, 0], scale: [1, 1.15, 1] }}
-          transition={{ duration: orb.dur, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' }}
-          className={`absolute ${orb.class} rounded-full opacity-[0.07] blur-[80px]
-                      bg-gradient-to-br from-${orb.from} to-${orb.to}`}
+          animate={reduced ? {} : {
+            x: [0, o.dx, 0], y: [0, o.dy, 0], scale: [1, 1.12, 1],
+          }}
+          transition={{ duration: o.dur, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' }}
+          className="absolute rounded-full"
+          style={{
+            ...o.style,
+            opacity: .065,
+            filter: 'blur(80px)',
+            background: `linear-gradient(135deg,${o.colors})`,
+            willChange: 'transform',
+          }}
         />
       ))}
     </div>
-  );
+  )
 }
 
-/* ─────────────────────────── particles ─────────────────────────── */
+/* ═══════════════════════════════════════════════
+   SCAN LINE — cohérent GlobalBackground
+═══════════════════════════════════════════════ */
+function ScanLine({ reduced }) {
+  if (reduced) return null
+  return (
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 1 }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: 0, right: 0,
+          height: '120px',
+          background: 'linear-gradient(to bottom,transparent,rgba(99,102,241,.018),transparent)',
+          animation: 'h-scan 6s linear infinite',
+          willChange: 'transform',
+        }}
+      />
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   PARTICLES — DOM-based, throttled
+═══════════════════════════════════════════════ */
 function Particles({ reduced }) {
-  const ref  = useRef(null);
-  const cnt  = useRef(0);
+  const ref = useRef(null)
+  const cnt = useRef(0)
 
   const spawn = useCallback(() => {
-    if (!ref.current || cnt.current > 35) return;
-    const el  = document.createElement('div');
-    const sz  = Math.random() * 3 + 1.5;
-    const dur = Math.random() * 5000 + 3000;
-    const hue = Math.random() > 0.5 ? '59,130,246' : '147,51,234';
-
+    if (!ref.current || cnt.current > 30) return
+    const el  = document.createElement('div')
+    const sz  = Math.random() * 2.5 + 1.2
+    const dur = Math.random() * 4500 + 2800
+    const colors = ['59,130,246', '139,92,246', '6,182,212', '99,102,241']
+    const hue = colors[Math.floor(Math.random() * colors.length)]
     Object.assign(el.style, {
-      position:   'absolute',
-      width:      `${sz}px`,
-      height:     `${sz}px`,
+      position: 'absolute',
+      width: `${sz}px`, height: `${sz}px`,
       borderRadius: '50%',
-      left:       `${Math.random() * 100}%`,
-      top:        `${Math.random() * 100}%`,
-      background: `rgba(${hue}, 0.7)`,
-      boxShadow:  `0 0 ${sz * 3}px rgba(${hue}, 0.6)`,
-      opacity:    '0',
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      background: `rgba(${hue},.72)`,
+      boxShadow: `0 0 ${sz * 3}px rgba(${hue},.55)`,
+      opacity: '0',
       pointerEvents: 'none',
-    });
-
+      willChange: 'transform, opacity',
+    })
     const anim = el.animate([
       { opacity: 0, transform: 'translateY(0) scale(0)' },
-      { opacity: 1, transform: `translateY(${-(Math.random() * 80 + 40)}px) scale(1)`, offset: 0.4 },
-      { opacity: 0, transform: `translateY(${-(Math.random() * 180 + 100)}px) scale(0.4)` },
-    ], { duration: dur, easing: 'cubic-bezier(0.4,0,0.2,1)' });
-
-    ref.current.appendChild(el);
-    cnt.current++;
-    anim.onfinish = () => {
-      el.remove();
-      cnt.current--;
-    };
-  }, []);
+      { opacity: 1, transform: `translateY(${-(Math.random()*70+35)}px) scale(1)`, offset: .38 },
+      { opacity: 0, transform: `translateY(${-(Math.random()*160+90)}px) scale(.35)` },
+    ], { duration: dur, easing: 'cubic-bezier(.4,0,.2,1)' })
+    ref.current.appendChild(el)
+    cnt.current++
+    anim.onfinish = () => { el.remove(); cnt.current-- }
+  }, [])
 
   useEffect(() => {
-    if (reduced) return;
-    const id = setInterval(spawn, 100);
-    return () => clearInterval(id);
-  }, [reduced, spawn]);
+    if (reduced) return
+    const id = setInterval(spawn, 110)
+    return () => clearInterval(id)
+  }, [reduced, spawn])
 
-  return <div ref={ref} className="absolute inset-0 pointer-events-none z-0" />;
+  return <div ref={ref} aria-hidden className="absolute inset-0 pointer-events-none z-0"/>
 }
 
-/* ─────────────────────────── floating badges ───────────────────── */
+/* ═══════════════════════════════════════════════
+   FLOATING BADGES — CSS animation
+═══════════════════════════════════════════════ */
 function FloatingBadges({ reduced }) {
   return (
-    <AnimatePresence>
+    <>
       {FLOATING_BADGES.map((b, i) => (
         <motion.div
           key={i}
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={reduced ? { opacity: 1, scale: 1 } : {
-            opacity: 1, scale: 1,
-            y: [0, i % 2 === 0 ? -18 : -22, 0],
-            rotate: [0, i % 2 === 0 ? 3 : -3, 0],
-          }}
-          transition={{
-            opacity:  { delay: i * 0.2 + 0.8, duration: 0.5 },
-            scale:    { delay: i * 0.2 + 0.8, duration: 0.5, type: 'spring', stiffness: 200 },
-            y:        { delay: i * 0.2 + 0.8, duration: 4 + i * 0.5, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' },
-            rotate:   { delay: i * 0.2 + 0.8, duration: 4 + i * 0.5, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' },
-          }}
-          style={b.pos}
-          className={`hidden xl:flex absolute items-center gap-2 px-4 py-2
-                      bg-gradient-to-br ${b.color} backdrop-blur-md
-                      border ${b.border} rounded-2xl shadow-lg ${b.glow} ${b.text}
-                      cursor-default select-none`}
+          initial={{ opacity: 0, scale: .7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: i * .18 + .9, duration: .5, ease: BACK }}
+          style={{ ...b.style, position: 'absolute' }}
+          className={`hidden xl:flex items-center gap-2 px-3.5 py-2
+                      rounded-2xl border backdrop-blur-md cursor-default select-none
+                      ${!reduced ? b.cls : ''}`}
+          aria-hidden
         >
-          <b.icon size={15} />
-          <span className="text-xs font-semibold tracking-wide">{b.label}</span>
+          <div
+            className="absolute inset-0 rounded-2xl"
+            style={{ background: b.bg, border: `1px solid ${b.border}` }}
+          />
+          <b.icon size={13} style={{ color: b.color, position: 'relative', zIndex: 1 }}/>
+          <span style={{ color: b.color, fontSize: '11px', fontWeight: 600,
+                         letterSpacing: '.03em', position: 'relative', zIndex: 1 }}>
+            {b.label}
+          </span>
         </motion.div>
       ))}
-    </AnimatePresence>
-  );
+    </>
+  )
 }
 
-/* ─────────────────────────── profile image ─────────────────────── */
+/* ═══════════════════════════════════════════════
+   PROFILE IMAGE — holographic rings
+═══════════════════════════════════════════════ */
 function ProfileImage({ reduced }) {
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(false)
 
   return (
     <motion.div
-      variants={itemVariants}
+      variants={itemVar}
       className="relative flex-shrink-0"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* outer rotating ring */}
-      <motion.div
-        animate={reduced ? {} : { rotate: 360 }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-        className="absolute -inset-6 rounded-full"
+      {/* Outer conic glow */}
+      <div
+        className={`absolute -inset-8 rounded-full pointer-events-none ${!reduced ? 'h-spin-cw' : ''}`}
         style={{
-          background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6)',
-          opacity: 0.25,
-          filter: 'blur(18px)',
+          background: 'conic-gradient(from 0deg,#3b82f6,#8b5cf6,#06b6d4,#6366f1,#3b82f6)',
+          opacity: .22,
+          filter: 'blur(22px)',
         }}
+        aria-hidden
       />
 
-      {/* inner counter-rotating ring */}
-      <motion.div
-        animate={reduced ? {} : { rotate: -360 }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-        className="absolute -inset-3 rounded-full border-2 border-dashed border-blue-500/30"
+      {/* Dashed counter ring */}
+      <div
+        className={`absolute -inset-4 rounded-full border border-dashed
+                    border-indigo-500/25 pointer-events-none ${!reduced ? 'h-spin-ccw' : ''}`}
+        aria-hidden
       />
 
-      {/* Dashed orbit dots */}
+      {/* Solid thin ring */}
+      <div
+        className={`absolute -inset-2 rounded-full border border-blue-500/18
+                    pointer-events-none ${!reduced ? 'h-spin-cw' : ''}`}
+        style={{ animationDuration: '22s' }}
+        aria-hidden
+      />
+
+      {/* Orbit dots */}
       {!reduced && [0, 72, 144, 216, 288].map((deg, i) => (
-        <motion.div
+        <div
           key={i}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'linear', delay: 0 }}
-          className="absolute inset-0 rounded-full"
-          style={{ originX: '50%', originY: '50%' }}
+          aria-hidden
+          className="h-orbit absolute inset-0 rounded-full pointer-events-none"
+          style={{ transformOrigin: '50% 50%', animationDelay: `${i * -2.4}s` }}
         >
           <div
-            className="absolute w-2 h-2 rounded-full bg-blue-400/60"
             style={{
+              position: 'absolute',
               top: '50%', left: '50%',
-              transform: `rotate(${deg}deg) translateX(calc(50% + 128px + 12px)) translateY(-50%)`,
+              width: 7, height: 7,
+              borderRadius: '50%',
+              background: i % 2 === 0
+                ? 'rgba(99,102,241,.65)'
+                : 'rgba(139,92,246,.55)',
+              boxShadow: `0 0 8px rgba(99,102,241,.5)`,
+              transform: `rotate(${deg}deg) translateX(calc(50% + 142px)) translateY(-50%)`,
             }}
           />
-        </motion.div>
+        </div>
       ))}
 
-      {/* image wrapper */}
+      {/* Image */}
       <motion.div
         whileHover={reduced ? {} : { scale: 1.04 }}
-        transition={{ type: 'spring', stiffness: 250, damping: 20 }}
-        className="relative w-56 h-56 md:w-64 md:h-64 rounded-full p-[3px]
-                   bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500
-                   shadow-2xl shadow-purple-500/30"
+        transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+        className="relative w-52 h-52 md:w-60 md:h-60 rounded-full p-[3px]"
+        style={{
+          background: 'linear-gradient(135deg,#3b82f6,#8b5cf6,#06b6d4)',
+          boxShadow: '0 0 48px rgba(99,102,241,.28), 0 20px 48px rgba(0,0,0,.45)',
+        }}
       >
-        <div className="w-full h-full rounded-full overflow-hidden bg-gray-900">
+        <div className="w-full h-full rounded-full overflow-hidden relative"
+             style={{ background: '#0a0f1e' }}>
           <img
             src={logo}
             alt="Badie Gmati — Ingénieur Logiciel"
-            className="w-full h-full object-cover transition-transform duration-700
-                       group-hover:scale-110"
+            className="w-full h-full object-cover"
+            style={{ transition: 'transform .7s ease' }}
           />
-          {/* hover overlay */}
           <AnimatePresence>
             {hovered && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent
-                           flex items-end justify-center pb-4"
+                transition={{ duration: .28 }}
+                className="absolute inset-0 flex items-end justify-center pb-4"
+                style={{
+                  background: 'linear-gradient(to top,rgba(10,15,40,.72),transparent)',
+                }}
               >
-                <span className="text-white text-xs font-medium tracking-widest uppercase">
+                <span style={{
+                  color: '#e2e8f0', fontSize: '10px',
+                  fontWeight: 600, letterSpacing: '.14em',
+                  textTransform: 'uppercase',
+                }}>
                   Badie Gmati
                 </span>
               </motion.div>
@@ -282,364 +510,456 @@ function ProfileImage({ reduced }) {
         </div>
       </motion.div>
 
-      {/* online badge */}
-      <motion.div
-        animate={reduced ? {} : { scale: [1, 1.2, 1], boxShadow: ['0 0 0 0 rgba(34,197,94,0.4)', '0 0 0 8px rgba(34,197,94,0)', '0 0 0 0 rgba(34,197,94,0)'] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-4 right-4 w-6 h-6 rounded-full
-                   bg-gradient-to-br from-green-400 to-emerald-500
-                   border-[3px] border-gray-950 shadow-xl"
-      />
+      {/* Online ping */}
+      <div
+        className="absolute bottom-3 right-3 w-5 h-5 rounded-full
+                   border-[2.5px] border-gray-950"
+        style={{ background: 'linear-gradient(135deg,#4ade80,#10b981)' }}
+      >
+        {!reduced && (
+          <div
+            className="h-ping absolute inset-0 rounded-full"
+            style={{ borderColor: 'rgba(74,222,128,.4)', border: '1px solid' }}
+            aria-hidden
+          />
+        )}
+      </div>
 
-      {/* availability label */}
+      {/* Availability chip */}
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.4, duration: 0.5 }}
-        className="absolute -right-4 top-6 bg-gray-900/90 backdrop-blur-sm
-                   border border-green-500/30 rounded-xl px-3 py-1.5 shadow-xl"
+        transition={{ delay: 1.3, duration: .5, ease: EXPO }}
+        className="absolute -right-3 top-5 backdrop-blur-md
+                   rounded-xl px-3 py-1.5 shadow-xl border"
+        style={{
+          background: 'rgba(9,12,28,.88)',
+          borderColor: 'rgba(74,222,128,.22)',
+          boxShadow: '0 4px 16px rgba(0,0,0,.4)',
+        }}
       >
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-green-400 text-xs font-medium whitespace-nowrap">
+          <div
+            className={`w-1.5 h-1.5 rounded-full ${!reduced ? 'h-pulse-dot' : ''}`}
+            style={{ background: '#4ade80' }}
+            aria-hidden
+          />
+          <span style={{ color: '#4ade80', fontSize: '11px', fontWeight: 600 }}>
             Disponible
           </span>
         </div>
       </motion.div>
     </motion.div>
-  );
+  )
 }
 
-/* ─────────────────────────── stats bar ─────────────────────────── */
+/* ═══════════════════════════════════════════════
+   STATS BAR
+═══════════════════════════════════════════════ */
 function StatsBar() {
   return (
     <motion.div
-      variants={itemVariants}
-      className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10"
+      variants={itemVar}
+      className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-8"
     >
       {STATS.map(({ value, label, icon: Icon, color }, i) => (
-        <motion.div
+        <div
           key={i}
-          whileHover={{ y: -4, scale: 1.03 }}
-          transition={{ type: 'spring', stiffness: 300 }}
-          className="group flex flex-col items-center gap-1 p-4 rounded-2xl
-                     bg-gray-800/40 backdrop-blur-sm border border-gray-700/40
-                     hover:border-gray-600/60 transition-colors duration-300
-                     hover:bg-gray-800/60 cursor-default"
+          className="h-stat group flex flex-col items-center gap-1.5
+                     p-3.5 rounded-2xl border cursor-default"
+          style={{
+            background: 'rgba(255,255,255,.028)',
+            borderColor: 'rgba(255,255,255,.068)',
+            backdropFilter: 'blur(10px)',
+          }}
         >
-          <Icon size={18} className={`${color} mb-1 transition-transform duration-300 group-hover:scale-110`} />
-          <span className={`text-xl font-bold ${color}`}>{value}</span>
-          <span className="text-gray-400 text-[11px] text-center leading-tight">{label}</span>
-        </motion.div>
+          <Icon size={16} style={{ color, marginBottom: 2 }}/>
+          <span style={{ color, fontSize: '1.1rem', fontWeight: 800,
+                         lineHeight: 1, letterSpacing: '-.01em' }}>
+            {value}
+          </span>
+          <span style={{ color: '#94a3b8', fontSize: '9.5px',
+                         textAlign: 'center', lineHeight: 1.3 }}>
+            {label}
+          </span>
+        </div>
       ))}
     </motion.div>
-  );
+  )
 }
 
-/* ─────────────────────────── type writer ───────────────────────── */
-const ROLES = [
-  'Ingénieur Full-Stack',
-  'Développeur IA Embarquée',
-  'Architecte Microservices',
-  'Expert Edge AI · Raspberry Pi',
-];
-
+/* ═══════════════════════════════════════════════
+   TYPEWRITER
+═══════════════════════════════════════════════ */
 function TypeWriter() {
-  const [roleIdx, setRoleIdx]   = useState(0);
-  const [display, setDisplay]   = useState('');
-  const [deleting, setDeleting] = useState(false);
-  const [paused, setPaused]     = useState(false);
+  const [idx,      setIdx]      = useState(0)
+  const [display,  setDisplay]  = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [paused,   setPaused]   = useState(false)
 
   useEffect(() => {
-    const full = ROLES[roleIdx];
+    const full = ROLES[idx]
     if (paused) {
-      const t = setTimeout(() => { setDeleting(true); setPaused(false); }, 1800);
-      return () => clearTimeout(t);
+      const t = setTimeout(() => { setDeleting(true); setPaused(false) }, 1800)
+      return () => clearTimeout(t)
     }
     if (!deleting && display.length < full.length) {
-      const t = setTimeout(() => setDisplay(full.slice(0, display.length + 1)), 55);
-      return () => clearTimeout(t);
+      const t = setTimeout(() => setDisplay(full.slice(0, display.length + 1)), 52)
+      return () => clearTimeout(t)
     }
-    if (!deleting && display.length === full.length) {
-      setPaused(true);
-      return;
-    }
+    if (!deleting && display.length === full.length) { setPaused(true); return }
     if (deleting && display.length > 0) {
-      const t = setTimeout(() => setDisplay(display.slice(0, -1)), 30);
-      return () => clearTimeout(t);
+      const t = setTimeout(() => setDisplay(display.slice(0, -1)), 28)
+      return () => clearTimeout(t)
     }
     if (deleting && display.length === 0) {
-      setDeleting(false);
-      setRoleIdx((prev) => (prev + 1) % ROLES.length);
+      setDeleting(false)
+      setIdx(p => (p + 1) % ROLES.length)
     }
-  }, [display, deleting, paused, roleIdx]);
+  }, [display, deleting, paused, idx])
 
   return (
-    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+    <span
+      className="h-grad"
+      style={{ backgroundImage: 'linear-gradient(90deg,#60a5fa,#818cf8,#a78bfa,#60a5fa)' }}
+    >
       {display}
       <motion.span
         animate={{ opacity: [1, 0, 1] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-        className="inline-block w-0.5 h-6 md:h-8 bg-blue-400 ml-1 align-middle"
+        transition={{ duration: .75, repeat: Infinity }}
+        style={{
+          display: 'inline-block',
+          width: '2px', height: '1.1em',
+          background: '#818cf8',
+          borderRadius: '1px',
+          marginLeft: '3px',
+          verticalAlign: 'middle',
+        }}
       />
     </span>
-  );
+  )
 }
 
-/* ─────────────────────────── download button ───────────────────── */
+/* ═══════════════════════════════════════════════
+   DOWNLOAD BUTTON — holographic
+═══════════════════════════════════════════════ */
 function DownloadButton({ onDownload }) {
-  const [loading, setLoading] = useState(false);
-  const [done,    setDone]    = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [done,    setDone]    = useState(false)
 
   const handle = async () => {
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    onDownload();
-    setLoading(false);
-    setDone(true);
-    setTimeout(() => setDone(false), 2500);
-  };
+    if (loading) return
+    setLoading(true)
+    try { await onDownload() } catch {}
+    setLoading(false)
+    setDone(true)
+    setTimeout(() => setDone(false), 2400)
+  }
 
   return (
-    <motion.button
-      whileHover={{ scale: 1.05, y: -3 }}
-      whileTap={{ scale: 0.96 }}
+    <button
       onClick={handle}
       disabled={loading}
-      className="group relative flex items-center gap-3 px-8 py-4
-                 bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600
-                 text-white rounded-2xl font-semibold text-base
-                 shadow-2xl shadow-blue-500/30 hover:shadow-purple-500/40
-                 transition-shadow duration-500 overflow-hidden
-                 border border-white/10 disabled:opacity-70"
+      className="h-btn-shimmer group relative flex items-center gap-3
+                 px-7 py-3.5 rounded-2xl font-semibold text-sm
+                 text-white overflow-hidden border"
+      style={{
+        background: 'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)',
+        borderColor: 'rgba(255,255,255,.12)',
+        boxShadow: '0 8px 28px rgba(99,102,241,.32), inset 0 1px 0 rgba(255,255,255,.1)',
+        transition: 'transform .24s cubic-bezier(.34,1.56,.64,1), box-shadow .24s ease',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-3px) scale(1.04)'
+        e.currentTarget.style.boxShadow = '0 14px 36px rgba(99,102,241,.44), inset 0 1px 0 rgba(255,255,255,.12)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = ''
+        e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,.32), inset 0 1px 0 rgba(255,255,255,.1)'
+      }}
     >
-      {/* shimmer */}
-      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full
-                      bg-gradient-to-r from-transparent via-white/15 to-transparent
-                      transition-transform duration-700 ease-in-out" />
-
       <AnimatePresence mode="wait">
         {loading ? (
-          <motion.div key="loading" initial={{ opacity:0, rotate:-90 }} animate={{ opacity:1, rotate:0 }}
-            exit={{ opacity:0 }} className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <motion.div key="spin"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="w-4 h-4 border-2 rounded-full animate-spin"
+            style={{ borderColor: 'rgba(255,255,255,.3)', borderTopColor: '#fff' }}
+          />
         ) : done ? (
-          <motion.span key="done" initial={{ opacity:0, scale:0.5 }} animate={{ opacity:1, scale:1 }}
-            exit={{ opacity:0 }} className="text-green-300 text-lg">✓</motion.span>
+          <motion.span key="done"
+            initial={{ opacity: 0, scale: .6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+            style={{ color: '#86efac', fontSize: '1rem' }}
+          >✓</motion.span>
         ) : (
-          <motion.div key="icon" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
-            <Download size={19} />
+          <motion.div key="icon"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <Download size={17}/>
           </motion.div>
         )}
       </AnimatePresence>
-
       <span>{done ? 'Téléchargé !' : 'Télécharger mon CV'}</span>
-      <ArrowRight size={17} className="opacity-70 group-hover:translate-x-1 transition-transform duration-300" />
-    </motion.button>
-  );
+      <ArrowRight
+        size={15}
+        style={{
+          opacity: .7,
+          transition: 'transform .28s ease',
+        }}
+        className="group-hover:translate-x-1"
+      />
+    </button>
+  )
 }
 
-/* ─────────────────────────── main component ────────────────────── */
+/* ═══════════════════════════════════════════════
+   HERO — MAIN COMPONENT
+═══════════════════════════════════════════════ */
 export default function Hero() {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion()
 
-  const downloadCV = () => {
-    const a = document.createElement('a');
-    a.href     = cvPdf;
-    a.download = 'CV-Badie-Gmati.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
+  const downloadCV = async () => {
+    try {
+      const res = await fetch(CV_URL)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href = url; a.download = 'CV-Badie-Gmati.pdf'
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.click()
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove() }, 300)
+    } catch (err) {
+      console.warn('[Hero] fallback →', err.message)
+      window.open(CV_URL, '_blank', 'noopener,noreferrer')
+    }
+  }
 
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex items-center justify-center
-                 overflow-hidden bg-gray-950 mt-16"
-    >
-      {/* ── background layers ── */}
-      <GridBackground />
-      <AnimatedOrbs reduced={reduced} />
-      <Particles     reduced={reduced} />
-      <CursorGlow />
+    <>
+      <StyleInject/>
 
-      {/* ── floating corner badges ── */}
-      <FloatingBadges reduced={reduced} />
-
-      {/* ── main content ── */}
-      <div className="container mx-auto px-4 md:px-8 relative z-10 py-16">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-5xl mx-auto"
-        >
-          
-
-          {/* ── profile + text ── */}
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 mb-12">
-            <ProfileImage reduced={reduced} />
-
-            {/* text block */}
-            <motion.div
-              variants={containerVariants}
-              className="flex-1 text-center lg:text-left"
-            >
-              {/* name */}
-              <motion.div variants={itemVariants} className="mb-3">
-                <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight
-                               text-white leading-none">
-                  
-                  <span className="text-transparent bg-clip-text
-                                   bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400
-                                   animate-gradient-x">
-                    Badie Gmati
-                  </span>
-                </h1>
-              </motion.div>
-
-              {/* typewriter role */}
-              <motion.div variants={itemVariants} className="h-9 md:h-10 mb-5 text-xl md:text-2xl font-semibold">
-                <TypeWriter />
-              </motion.div>
-
-              {/* description */}
-              <motion.p
-                variants={itemVariants}
-                className="text-gray-400 text-base md:text-lg leading-relaxed max-w-xl mb-6
-                           mx-auto lg:mx-0"
-              >
-                Diplômé <span className="text-purple-400">Génie Logiciel Sciences Informatiques</span> avec mention{' '}
-                <span className="text-yellow-400 font-bold">Très Bien (17/20)</span>. Spécialisé en
-                développement Full-Stack 
-                et IA embarquée .
-              </motion.p>
-
-              {/* location + contact */}
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8 text-sm"
-              >
-                {[
-                  { icon: MapPin, text: 'Bouargoub, Nabeul, Tunisie', color: 'text-red-400'   },
-                  { icon: Mail,   text: 'badiegmati11@gmail.com',     color: 'text-blue-400'  },
-                  { icon: Phone,  text: '+216 58 294 838',            color: 'text-green-400' },
-                ].map(({ icon: Icon, text, color }, i) => (
-                  <div key={i} className="flex items-center gap-2 text-gray-400
-                                          bg-gray-800/40 backdrop-blur-sm px-3 py-1.5
-                                          rounded-full border border-gray-700/40">
-                    <Icon size={14} className={color} />
-                    <span>{text}</span>
-                  </div>
-                ))}
-              </motion.div>
-
-            
-
-              {/* CTA buttons */}
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8"
-              >
-                <DownloadButton onDownload={downloadCV} />
-
-                <motion.button
-                  whileHover={{ scale: 1.04, y: -2 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="group flex items-center justify-center gap-3 px-8 py-4
-                             bg-gray-800/50 hover:bg-gray-700/60 backdrop-blur-sm
-                             text-gray-200 rounded-2xl font-semibold text-base
-                             border border-gray-700/50 hover:border-gray-600/60
-                             transition-all duration-300"
-                >
-                  <span>Découvrir mon profil</span>
-                  <ChevronDown size={18}
-                    className="group-hover:translate-y-1 transition-transform duration-300" />
-                </motion.button>
-              </motion.div>
-
-              {/* social links */}
-              <motion.div
-                variants={itemVariants}
-                className="flex justify-center lg:justify-start items-center gap-3"
-              >
-                <span className="text-gray-500 text-sm mr-1">Me retrouver sur</span>
-                {SOCIAL_LINKS.map(({ href, icon: Icon, label, hover }, i) => (
-                  <motion.a
-                    key={i}
-                    href={href}
-                    target={href.startsWith('http') ? '_blank' : undefined}
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.15, y: -3 }}
-                    whileTap={{ scale: 0.9 }}
-                    aria-label={label}
-                    className={`group relative p-3 rounded-xl
-                                bg-gray-800/50 backdrop-blur-sm
-                                border border-gray-700/40 hover:border-gray-600/60
-                                transition-all duration-300`}
-                  >
-                    <Icon size={20} className={`text-gray-400 transition-colors duration-300 ${hover}`} />
-                    {/* tooltip */}
-                    <span className="absolute -top-9 left-1/2 -translate-x-1/2
-                                     bg-gray-900 border border-gray-700/60 text-white
-                                     text-xs py-1 px-2.5 rounded-lg opacity-0
-                                     group-hover:opacity-100 transition-opacity duration-200
-                                     whitespace-nowrap shadow-xl pointer-events-none">
-                      {label}
-                    </span>
-                  </motion.a>
-                ))}
-              </motion.div>
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ── scroll indicator ── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+      <section
+        id="home"
+        className="relative min-h-screen flex items-center justify-center
+                   overflow-hidden mt-16"
+        style={{ background: 'transparent' }}
       >
-        <motion.div
-          animate={reduced ? {} : { y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex flex-col items-center gap-2 cursor-pointer group"
-          onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-        >
-          {/* scroll mouse */}
-          <div className="w-6 h-10 border-2 border-gray-600 group-hover:border-blue-500/60
-                          rounded-full flex items-start justify-center pt-2
-                          transition-colors duration-300">
-            <motion.div
-              animate={reduced ? {} : { y: [0, 12, 0], opacity: [1, 0, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-1 h-2 bg-blue-400 rounded-full"
-            />
-          </div>
-          <span className="text-gray-500 text-[11px] tracking-widest uppercase
-                           group-hover:text-gray-400 transition-colors duration-300">
-            Scroll
-          </span>
-        </motion.div>
-      </motion.div>
+        {/* Layers */}
+        <HeroGrid/>
+        <HeroOrbs reduced={reduced}/>
+        <ScanLine reduced={reduced}/>
+        <Particles reduced={reduced}/>
+        <CursorGlow/>
+        <FloatingBadges reduced={reduced}/>
 
-      {/* ── global CSS ── */}
-      <style>{`
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0%   50%; }
-          50%       { background-position: 100% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 4s ease infinite;
-        }
-        .bg-gradient-radial {
-          background: radial-gradient(circle, var(--tw-gradient-stops));
-        }
-      `}</style>
-    </section>
-  );
+        {/* Main */}
+        <div className="container mx-auto px-4 md:px-8 relative z-10 py-16">
+          <motion.div
+            variants={containerVar}
+            initial="hidden"
+            animate="visible"
+            className="max-w-5xl mx-auto"
+          >
+            <div className="flex flex-col lg:flex-row items-center
+                            gap-12 lg:gap-16 mb-10">
+              <ProfileImage reduced={reduced}/>
+
+              <motion.div variants={containerVar} className="flex-1 text-center lg:text-left">
+
+                
+
+                {/* Name */}
+                <motion.div variants={itemVar} className="mb-3">
+                  <h1
+                    className="font-black tracking-tight leading-none text-white"
+                    style={{ fontSize: 'clamp(2.6rem,6vw,4.2rem)' }}
+                  >
+                    <span
+                      className="h-grad"
+                      style={{
+                        backgroundImage:
+                          'linear-gradient(90deg,#60a5fa 0%,#818cf8 30%,#a78bfa 55%,#f472b6 80%,#60a5fa 100%)',
+                      }}
+                    >
+                      Badie Gmati
+                    </span>
+                  </h1>
+                </motion.div>
+
+                {/* Typewriter */}
+                <motion.div
+                  variants={itemVar}
+                  className="mb-5 font-semibold"
+                  style={{ height: '2.2rem', fontSize: 'clamp(1rem,2.2vw,1.35rem)' }}
+                >
+                  <TypeWriter/>
+                </motion.div>
+
+                {/* Description */}
+                <motion.p
+                  variants={itemVar}
+                  className="mb-6 mx-auto lg:mx-0 max-w-lg leading-relaxed"
+                  style={{ color: '#94a3b8', fontSize: '14px' }}
+                >
+                  Diplômé{' '}
+                  <span style={{ color: '#a78bfa', fontWeight: 600 }}>
+                    Génie Logiciel Sciences Informatiques
+                  </span>{' '}
+                  avec mention{' '}
+                  <span style={{ color: '#fbbf24', fontWeight: 700 }}>
+                    Très Bien (17/20)
+                  </span>.
+                  {' '}Spécialisé en Full-Stack et IA embarquée.
+                </motion.p>
+
+                {/* Info pills */}
+                <motion.div
+                  variants={itemVar}
+                  className="flex flex-wrap justify-center lg:justify-start gap-2 mb-7"
+                >
+                  {INFO_PILLS.map(({ icon: Icon, text, color }, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+                      style={{
+                        background: 'rgba(255,255,255,.03)',
+                        border: '1px solid rgba(255,255,255,.07)',
+                        color: '#94a3b8',
+                        fontSize: '11.5px',
+                        backdropFilter: 'blur(8px)',
+                      }}
+                    >
+                      <Icon size={12} style={{ color }}/>
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                </motion.div>
+
+                {/* Stats */}
+                
+
+                {/* CTA Buttons */}
+                <motion.div
+                  variants={itemVar}
+                  className="flex flex-col sm:flex-row justify-center
+                             lg:justify-start gap-3 mb-7"
+                >
+                  <DownloadButton onDownload={downloadCV}/>
+
+                  <button
+                    onClick={() =>
+                      document.getElementById('about')
+                        ?.scrollIntoView({ behavior: 'smooth' })
+                    }
+                    className="group flex items-center justify-center gap-2.5
+                               px-7 py-3.5 rounded-2xl font-semibold text-sm border"
+                    style={{
+                      background: 'rgba(255,255,255,.04)',
+                      borderColor: 'rgba(255,255,255,.09)',
+                      color: '#cbd5e1',
+                      backdropFilter: 'blur(10px)',
+                      transition: 'background .22s ease, border-color .22s ease, transform .24s cubic-bezier(.34,1.56,.64,1)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,.07)'
+                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,.04)'
+                      e.currentTarget.style.transform = ''
+                    }}
+                  >
+                    <span>Découvrir mon profil</span>
+                    <ChevronDown size={16} style={{ opacity: .7 }}
+                      className="group-hover:translate-y-1 transition-transform duration-300"/>
+                  </button>
+                </motion.div>
+
+                {/* Social Links */}
+                <motion.div
+                  variants={itemVar}
+                  className="flex justify-center lg:justify-start items-center gap-2.5"
+                >
+                  <span style={{ color: '#475569', fontSize: '11.5px', marginRight: 4 }}>
+                    Me retrouver sur
+                  </span>
+                  {SOCIAL_LINKS.map(({ href, icon: Icon, label, hoverColor }, i) => (
+                    <a
+                      key={i}
+                      href={href}
+                      target={href.startsWith('http') ? '_blank' : undefined}
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="h-social group relative p-2.5 rounded-xl border"
+                      style={{
+                        background: 'rgba(255,255,255,.035)',
+                        borderColor: 'rgba(255,255,255,.07)',
+                        backdropFilter: 'blur(8px)',
+                      }}
+                    >
+                      <Icon size={18} style={{ color: '#64748b', transition: 'color .22s ease' }}
+                        onMouseEnter={e => e.currentTarget.style.color = hoverColor}
+                        onMouseLeave={e => e.currentTarget.style.color = '#64748b'}
+                      />
+                      {/* Tooltip */}
+                      <span
+                        className="absolute -top-8 left-1/2 -translate-x-1/2
+                                   opacity-0 group-hover:opacity-100
+                                   transition-opacity duration-200 pointer-events-none
+                                   text-xs text-white px-2 py-1 rounded-lg whitespace-nowrap"
+                        style={{
+                          background: 'rgba(9,12,28,.95)',
+                          border: '1px solid rgba(255,255,255,.08)',
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </a>
+                  ))}
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.9, duration: .7 }}
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10"
+        >
+          <div
+            className="h-scroll-mouse flex flex-col items-center gap-2 cursor-pointer group"
+            onClick={() =>
+              document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
+            }
+          >
+            <div
+              className="w-5 h-9 rounded-full border-2 flex items-start
+                         justify-center pt-1.5"
+              style={{ borderColor: 'rgba(99,102,241,.3)' }}
+            >
+              <motion.div
+                animate={reduced ? {} : {
+                  y: [0, 10, 0], opacity: [1, 0, 1],
+                }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-[2px] h-2 rounded-full"
+                style={{ background: '#818cf8' }}
+              />
+            </div>
+            <span
+              style={{ color: '#475569', fontSize: '9.5px',
+                       letterSpacing: '.14em', textTransform: 'uppercase',
+                       transition: 'color .22s ease' }}
+              className="group-hover:!text-slate-400"
+            >
+              Scroll
+            </span>
+          </div>
+        </motion.div>
+      </section>
+    </>
+  )
 }

@@ -1,25 +1,22 @@
-import { useMemo } from 'react';
-
+// useBasePath.js — aucune modification nécessaire
+// Ce fichier est correct et peu coûteux
+import { useMemo } from 'react'
 
 export const useBasePath = () => {
   const isProduction = useMemo(() => {
-    return window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-  }, []);
+    return (
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+    )
+  }, [])
 
-  const basePath = isProduction ? '/Portfolio' : '';
+  const basePath = isProduction ? '/Portfolio' : ''
 
-  const getAssetPath = (path) => {
-    return `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
-  };
+  const getAssetPath = (path) =>
+    `${basePath}${path.startsWith('/') ? path : `/${path}`}`
 
-  const getImagePath = (imageName) => {
-    return `${basePath}/src/assets/images/${imageName}`;
-  };
+  const getImagePath = (imageName) =>
+    `${basePath}/src/assets/images/${imageName}`
 
-  return {
-    isProduction,
-    basePath,
-    getAssetPath,
-    getImagePath
-  };
-};
+  return { isProduction, basePath, getAssetPath, getImagePath }
+}
