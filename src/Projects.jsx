@@ -833,7 +833,7 @@ export default function Projects() {
       gradient: 'from-violet-600 via-purple-500 to-indigo-600',
       accentColor: 'text-violet-400',
       isPFE: true,
-      demoUrl: 'https://badiegmati.github.io/Chi5a/',
+      demoUrl: 'https://badiegmati.github.io/Projet_pfe/',
       code: 'https://github.com/badiegmati/Projet_pfe',
       features: [
         'DMS : fatigue (EAR/MAR), distraction, téléphone, ceinture',
