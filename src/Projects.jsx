@@ -1556,7 +1556,7 @@ export default function Projects() {
         'Rendu 3D + particules + effets visuels',
       ],
       status: 'AR · Vision',
-      featured: true,
+      featured: false,
     },
     {
       id: 4,
