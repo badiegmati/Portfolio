@@ -102,7 +102,7 @@ const LANGUAGES = [
 ]
 
 const EDUCATION = [
-  { degree: 'Licence en Informatique',            school: 'ISIGK — Kairouan', period: 'Sept. 2023 – Juin 2026', mention: 'Mention Très Bien · 17/20',  color: 'from-blue-500 to-purple-600',  icon: GraduationCap, active: true  },
+  { degree: 'Licence en Informatique',            school: 'ISIGK — Kairouan', period: 'Sept. 2023 – Juin 2026', mention: 'Mention Très Bien · 17/20',  color: 'from-blue-500 to-purple-600',  icon: GraduationCap, active: false  },
   { degree: 'Baccalauréat Sciences Informatiques', school: 'Lycée Bouargoub', period: 'Juin 2023',              mention: "Sciences de l'Informatique", color: 'from-purple-500 to-pink-500',  icon: BookOpen,      active: false },
 ]
 
