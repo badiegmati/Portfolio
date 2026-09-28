@@ -14,7 +14,7 @@ import logo from './logo1.png'
 /* ═══════════════════════════════════════════════
    CV URL — Vite public/ folder
 ═══════════════════════════════════════════════ */
-const CV_URL = `${import.meta.env.BASE_URL}pdf/CV_Badie_Gmati_final.pdf`
+const CV_URL = `${import.meta.env.BASE_URL}pdf/CV_Badie_Gmati_final-français.pdf`
 
 /* ═══════════════════════════════════════════════
    CSS INJECTION — palette GlobalBackground
