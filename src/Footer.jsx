@@ -62,7 +62,7 @@ const SOCIAL = [
     glow: 'from-gray-600/30 to-gray-800/30',
   },
   {
-    icon: Linkedin, href: 'https://www.linkedin.com/in/badie-gmati-3168b535b/',
+    icon: Linkedin, href: 'https://www.linkedin.com/in/badie-gmati/',
     label: 'LinkedIn', tip: 'Connectons-nous',
     color: 'hover:text-blue-400',
     glow: 'from-blue-600/20 to-blue-800/20',

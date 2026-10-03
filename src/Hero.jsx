@@ -178,7 +178,7 @@ const STATS = [
 
 const SOCIAL_LINKS = [
   { href: 'https://github.com/badiegmati',                      icon: Github,   label: 'GitHub',   hoverColor: '#f1f5f9' },
-  { href: 'https://www.linkedin.com/in/badie-gmati-3168b535b/', icon: Linkedin, label: 'LinkedIn', hoverColor: '#60a5fa' },
+  { href: 'https://www.linkedin.com/in/badie-gmati/', icon: Linkedin, label: 'LinkedIn', hoverColor: '#60a5fa' },
   { href: 'mailto:badiegmati11@gmail.com',                      icon: Mail,     label: 'Email',    hoverColor: '#34d399' },
 ]
 
