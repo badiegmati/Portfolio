@@ -1,5 +1,5 @@
 // Skills.jsx — Ultra Professional · Cohérent GlobalBackground · Zero Lag
-import { useRef, useState, useEffect, useMemo, memo, useCallback } from "react"
+import { useRef, useState, useEffect, useMemo, memo } from "react"
 import { motion, useReducedMotion, useInView, AnimatePresence } from "framer-motion"
 import {
   SiTailwindcss, SiPhp, SiMongodb, SiOracle, SiSqlite,
@@ -106,7 +106,6 @@ const STYLES = `
     cursor: default;
     user-select: none;
     overflow: hidden;
-    /* GPU-only transitions */
     transition:
       transform .26s cubic-bezier(.34,1.56,.64,1),
       box-shadow .26s ease,
@@ -441,13 +440,16 @@ const AgileIcon = ({ className = "" }) => (
 
 /* ═══════════════════════════════════════════════════════════
    STABLE ICONS
+   ⚠ Fix : les icônes basées sur <img> acceptent désormais la prop
+   className (avant : ignorée, taille figée à 20px au lieu de 18px
+   comme toutes les autres icônes de la grille).
 ═══════════════════════════════════════════════════════════ */
-const JavaIcon    = () => <img src={javaImg}    alt="Java"    className="w-5 h-5 object-contain" loading="lazy"/>
-const PythonIcon  = () => <img src={pythonImg}  alt="Python"  className="w-5 h-5 object-contain" loading="lazy"/>
-const CppIcon     = () => <img src={cppImg}     alt="C/C++"   className="w-5 h-5 object-contain" loading="lazy"/>
-const FlutterIcon = () => <img src={flutterImg} alt="Flutter" className="w-5 h-5 object-contain" loading="lazy"/>
-const LinuxIcon   = () => <img src={linuxImg}   alt="Linux"   className="w-5 h-5 rounded object-contain" loading="lazy"/>
-const VscodeIcon  = () => <img src={vscodeImg}  alt="VS Code" className="w-5 h-5 rounded object-contain" loading="lazy"/>
+const JavaIcon    = ({ className = "w-5 h-5" }) => <img src={javaImg}    alt="Java"    className={`${className} object-contain`} loading="lazy"/>
+const PythonIcon  = ({ className = "w-5 h-5" }) => <img src={pythonImg}  alt="Python"  className={`${className} object-contain`} loading="lazy"/>
+const CppIcon     = ({ className = "w-5 h-5" }) => <img src={cppImg}     alt="C/C++"   className={`${className} object-contain`} loading="lazy"/>
+const FlutterIcon = ({ className = "w-5 h-5" }) => <img src={flutterImg} alt="Flutter" className={`${className} object-contain`} loading="lazy"/>
+const LinuxIcon   = ({ className = "w-5 h-5" }) => <img src={linuxImg}   alt="Linux"   className={`${className} rounded object-contain`} loading="lazy"/>
+const VscodeIcon  = ({ className = "w-5 h-5" }) => <img src={vscodeImg}  alt="VS Code" className={`${className} rounded object-contain`} loading="lazy"/>
 const RpiIcon     = ({ className }) => <SiRaspberrypi className={className}/>
 const UARTWrap    = ({ className }) => <UARTIcon   className={className}/>
 const IoTWrap     = ({ className }) => <IoTIcon    className={className}/>
@@ -510,6 +512,8 @@ function CountUp({ target, suffix = "" }) {
 
 /* ═══════════════════════════════════════════════════════════
    STAT CARD — Horizontal compact · Holographic
+   ⚠ Fix : la barre du bas utilise désormais group-hover (Tailwind)
+   au lieu d'un addEventListener manuel via ref callback.
 ═══════════════════════════════════════════════════════════ */
 const StatCard = memo(function StatCard({
   value, suffix = "", label, sublabel,
@@ -610,20 +614,12 @@ const StatCard = memo(function StatCard({
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar — pure Tailwind group-hover, plus de JS manuel */}
       <div className="px-4 pb-3">
         <div
           className={`sk-expand-bar h-px rounded-full bg-gradient-to-r ${gradient}
-                      opacity-28 group-hover:opacity-72`}
-          style={{ width: "20%" }}
-          ref={el => {
-            if (!el) return
-            const card = el.closest(".sk-stat")
-            if (!card || card._sk) return
-            card._sk = true
-            card.addEventListener("mouseenter", () => { el.style.width = "62%" })
-            card.addEventListener("mouseleave", () => { el.style.width = "20%" })
-          }}
+                      w-[20%] opacity-[0.28]
+                      group-hover:w-[62%] group-hover:opacity-[0.72]`}
         />
       </div>
     </motion.div>
@@ -633,7 +629,7 @@ const StatCard = memo(function StatCard({
 /* ═══════════════════════════════════════════════════════════
    COLLAPSIBLE
 ═══════════════════════════════════════════════════════════ */
-function Collapsible({ open, children }) {
+function Collapsible({ open, id, children }) {
   const ref = useRef(null)
   useEffect(() => {
     const el = ref.current
@@ -657,7 +653,7 @@ function Collapsible({ open, children }) {
     }
   }, [open])
   return (
-    <div ref={ref} className="sk-collapse" style={{ height: "auto", opacity: 1 }}>
+    <div id={id} ref={ref} className="sk-collapse" style={{ height: "auto", opacity: 1 }}>
       {children}
     </div>
   )
@@ -682,14 +678,17 @@ const SkillCard = memo(function SkillCard({ icon: Icon, label, color, isAI = fal
 
 /* ═══════════════════════════════════════════════════════════
    SKILL CATEGORY — Holographic panel
+   ⚠ Fix a11y : aria-expanded + aria-controls/id reliant bouton
+   et panneau.
 ═══════════════════════════════════════════════════════════ */
 const SkillCategory = memo(function SkillCategory({
-  title, children, icon: Icon, color,
+  id, title, children, icon: Icon, color,
   accentGradient, isAI = false, badge, count
 }) {
   const [open, setOpen] = useState(true)
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: "-30px" })
+  const panelId = `sk-panel-${id}`
 
   return (
     <motion.section
@@ -763,7 +762,7 @@ const SkillCategory = memo(function SkillCategory({
         {/* Title + badges */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-[12px] font-black text-white/92 tracking-tight leading-none">
+            <h3 id={`sk-title-${id}`} className="text-[12px] font-black text-white/92 tracking-tight leading-none">
               {title}
             </h3>
 
@@ -797,13 +796,15 @@ const SkillCategory = memo(function SkillCategory({
         {/* Toggle */}
         <button
           onClick={() => setOpen(v => !v)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          aria-labelledby={`sk-title-${id}`}
           className="flex-shrink-0 p-1.5 rounded-lg
                      border border-white/[0.048] text-gray-600
                      hover:text-white hover:bg-white/[0.052]
                      hover:border-white/[0.09] active:scale-90
                      transition-all duration-180"
           style={{ background: "rgba(255,255,255,.016)" }}
-          aria-label={open ? "Réduire" : "Développer"}
         >
           <ChevronDown
             size={13}
@@ -814,7 +815,7 @@ const SkillCategory = memo(function SkillCategory({
       </div>
 
       {/* Grid */}
-      <Collapsible open={open}>
+      <Collapsible open={open} id={panelId}>
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -999,7 +1000,6 @@ export default function Skills() {
         { icon: SiDocker,  label: "Docker",    color: "text-blue-400"   },
         { icon: LinuxIcon, label: "Linux",     color: "text-yellow-400" },
         { icon: VscodeIcon,label: "VS Code",   color: "text-blue-400"   },
-        { icon: SiOracle,  label: "Oracle DB", color: "text-red-400"    },
         { icon: AgileWrap, label: "Agile",     color: "text-purple-400" },
       ],
     },
@@ -1016,7 +1016,7 @@ export default function Skills() {
       icon: Code, delay: 0.05, isText: false,
     },
     {
-      value: 7, suffix: "", label: "Catégories", sublabel: "de compétences",
+      value: categories.length, suffix: "", label: "Catégories", sublabel: "de compétences",
       gradient: "from-violet-400 via-purple-400 to-indigo-500",
       gradientRaw: "#a78bfa, #c084fc, #6366f1",
       icon: Layers, delay: 0.11, isText: false,
@@ -1033,7 +1033,7 @@ export default function Skills() {
       gradientRaw: "#e879f9, #a78bfa, #6366f1",
       icon: Brain, delay: 0.23, isText: true,
     },
-  ], [total])
+  ], [total, categories])
 
   return (
     <>
@@ -1043,11 +1043,10 @@ export default function Skills() {
         id="skills"
         className="relative py-24 overflow-hidden"
         style={{
-          /* Fond cohérent avec GlobalBackground (#020817) */
           background: "linear-gradient(180deg,rgba(2,8,23,0) 0%,rgba(2,8,23,.55) 40%,rgba(2,8,23,.62) 100%)",
         }}
       >
-        {/* Dot grid — même taille que GlobalBackground node grid */}
+        {/* Dot grid */}
         <div
           className="absolute inset-0 pointer-events-none"
           aria-hidden
@@ -1057,7 +1056,7 @@ export default function Skills() {
           }}
         />
 
-        {/* Vignette — cohérente GlobalBackground */}
+        {/* Vignette */}
         <div
           className="absolute inset-0 pointer-events-none"
           aria-hidden
@@ -1066,7 +1065,7 @@ export default function Skills() {
           }}
         />
 
-        {/* Ambient orbs — palette GlobalBackground */}
+        {/* Ambient orbs */}
         <div
           className="sk-orb-a absolute -top-32 -left-32 w-[380px] h-[380px]
                      rounded-full blur-[88px] opacity-[0.06] pointer-events-none"
@@ -1192,6 +1191,7 @@ export default function Skills() {
               {visible.map(cat => (
                 <SkillCategory
                   key={cat.id}
+                  id={cat.id}
                   title={cat.title} icon={cat.icon}
                   color={cat.color} accentGradient={cat.accentGradient}
                   isAI={cat.isAI} badge={cat.badge} count={cat.skills.length}

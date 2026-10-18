@@ -85,13 +85,13 @@ const NAV_LINKS = [
 
 const STATS = [
   {
-    icon: Code,   value: '44+',     label: 'Technologies',
+    icon: Code,   value: '43+',     label: 'Technologies',
     color: 'text-blue-400',
     grad: 'from-blue-400 to-cyan-400',
     gradRaw: '#60a5fa,#22d3ee',
   },
   {
-    icon: Globe,  value: '7+',      label: 'Projets',
+    icon: Globe,  value: '8+',      label: 'Projets',
     color: 'text-purple-400',
     grad: 'from-purple-400 to-pink-400',
     gradRaw: '#c084fc,#f472b6',
