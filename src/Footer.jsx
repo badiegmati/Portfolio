@@ -91,7 +91,7 @@ const STATS = [
     gradRaw: '#60a5fa,#22d3ee',
   },
   {
-    icon: Globe,  value: '8+',      label: 'Projets',
+    icon: Globe,  value: '9+',      label: 'Projets',
     color: 'text-purple-400',
     grad: 'from-purple-400 to-pink-400',
     gradRaw: '#c084fc,#f472b6',

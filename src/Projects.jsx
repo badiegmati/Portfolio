@@ -1,4 +1,4 @@
-// Projects.jsx — fusion finale : design d'origine (cube 3D, néon, rubans, images) + FleetDesk (calendrier animé intégré au modal)
+// Projects.jsx — fusion finale : design d'origine (cube 3D, néon, rubans, images) + FleetDesk (calendrier animé intégré au modal) + CryptoPredict AI (signal animé)
 // Palette: #3b82f6 · #8b5cf6 · #06b6d4 · #6366f1 · Animations: transform + opacité · prefers-reduced-motion respecté
 
 import React, { useState, useRef, useEffect, useMemo } from 'react'
@@ -6,10 +6,13 @@ import {
   Github, Database, Globe, GamepadIcon, Cpu, Download, Sparkles, Zap, Terminal, Eye, Camera, Shield,
   X, Car, Server, Smartphone, Gauge, Star, ArrowUpRight, Trophy, Box, Hand, ScanEye, Layers, Brain,
   Fingerprint, Move3d, RotateCcw, CalendarRange, Lock, MousePointer2, Activity,
+  TrendingUp, Target, Coins, Signal,
 } from 'lucide-react'
 import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
 import image1 from './assets/image1.png'
 import image3 from './assets/image4.png'
+import cryptoHome from './assets/crypto-home.png'
+import cryptoDashboard from './assets/crypto-dashboard.png'
 
 /* ═══ CSS injecté ═══ */
 const STYLES = `
@@ -119,6 +122,59 @@ const PROJECTS = [
       note: "Pour tester la démo : crée un compte (confirmation par e-mail), puis clique sur « Charger la démo » sur le tableau de bord. Chaque société est isolée par la RLS.",
       links: [['Résumé détaillé', 'https://github.com/badiegmati/fleetdesk/blob/main/resume.md']],
     },
+  },{
+    id: 3, cube: true, featured: true, neon: 'rgba(99,102,241,.30)', icon: Box,
+    title: "Rubik's Cube AR — Contrôle Gestuel",
+    description: "Application de réalité augmentée Python : un Rubik's Cube 3×3 flotte devant la caméra et se manipule à la main grâce à MediaPipe Hands. Pincement pour tourner une face, poing pour orbiter, pouce levé pour mélanger.",
+    tech: ['Python', 'OpenCV', 'MediaPipe', 'NumPy', 'Kociemba', 'Vision par ordi'],
+    features: ['Détection 21 landmarks main (MediaPipe)', 'Pincement pouce+index → tourne la face', 'Poing fermé + déplacement → orbite vue', 'Solveur Kociemba optimal (≤20 moves)', 'Moteur facelets WCA complet validé', 'Rendu 3D + particules + effets visuels'],
+    chips: [[Fingerprint, 'Pincement → Face', '#06b6d4'], [Move3d, 'Poing → Orbite', '#8b5cf6'], [Hand, 'Pouce → Mélange', '#3b82f6'], [RotateCcw, 'V → Résolution auto', '#6366f1']],
+    ribbon: 'AR · Vision par ordi', gradient: 'from-indigo-500 via-violet-500 to-cyan-500', color: '#6366f1', status: 'AR · Vision',
+    code: 'https://github.com/badiegmati/-Rubik-Cube',
+    modal: {
+      sub: 'Python · OpenCV · MediaPipe · NumPy · Kociemba', hero: 'cube', title1: 'Contrôle gestuel et architecture',
+      intro: 'Le moteur reproduit fidèlement les 54 facelets WCA, tous les moves valides (U/D/R/L/F/B + tranches M/E/S + rotations globales) et intègre un solveur Kociemba optimal.',
+      blocks: [
+        ['Pincement', Fingerprint, '#06b6d4', 'Pouce + index : attrape et tourne une face'],
+        ['Poing', Move3d, '#8b5cf6', 'Poing fermé + déplacement : orbite caméra'],
+        ['Pouce levé', Hand, '#3b82f6', 'Maintenu ~1 s : mélange aléatoire du cube'],
+        ['Vision', Camera, '#06b6d4', 'MediaPipe Hands 21 pts · pipeline OpenCV · YOLOv8 compatible'],
+        ['Moteur Cube', Box, '#3b82f6', 'Facelets WCA validées · 26 moves + rotations · solveur Kociemba'],
+        ['Rendu 3D', ScanEye, '#6366f1', 'Projection 3D OpenCV · particules et effets · éclairage dynamique'],
+      ],
+      keys: [['Q / Esc', 'Quitter'], ['S', 'Mélanger'], ['R', 'Réinitialiser'], ['V', 'Résoudre'], ['+/-', 'Zoom'], ['Flèches', 'Orbiter']],
+      metrics: [['21', 'Landmarks main'], ['54', 'Facelets WCA'], ['26', 'Moves validés'], ['≤20', 'Moves solution']],
+      steps: ['git clone https://github.com/badiegmati/-Rubik-Cube.git', 'pip install -r requirements.txt', 'python main.py'],
+      links: [['Télécharger', 'https://github.com/badiegmati/-Rubik-Cube/archive/refs/heads/main.zip']],
+    },
+  },
+  {
+    id: 8, kind: 'crypto', highlight: true, featured: false, neon: 'rgba(6,182,212,.30)', icon: TrendingUp,
+    title: 'CryptoPredict AI — Prédiction de Prix Crypto Multi-Paires',
+    description: "Plateforme de prédiction de prix crypto en temps réel : recherche libre parmi 511 paires Binance USDT actives, ensemble de 3 modèles ML (RandomForest, XGBoost, LightGBM) sur 4 horizons temporels, signal ACHAT/VENTE/ATTENTE avec score de confiance calibré. Edge statistique validé par walk-forward et réplication hors échantillon.",
+    tech: ['Python', 'FastAPI', 'SQLAlchemy', 'scikit-learn', 'XGBoost', 'LightGBM', 'pandas', 'Next.js 14', 'TypeScript', 'TailwindCSS', 'Recharts', 'PostgreSQL', 'Supabase', 'Vercel', 'Render'],
+    features: ['Recherche libre parmi 511 paires Binance USDT actives', '4 horizons simultanés : 15m, 1h, 1d, 7d', 'Vote pondéré de 3 modèles ML indépendants', 'Dashboard pro : accuracy, backtest P&L, win rate, Sharpe ratio'],
+    kpis: [['511', 'paires suivies'], ['3', 'modèles ML'], ['4', 'horizons'], ['38-48%', 'win rate filtré']],
+    chips: [[Brain, 'Ensemble ML pondéré', '#06b6d4'], [Target, 'Confiance calibrée', '#3b82f6'], [Activity, 'Backtest walk-forward', '#8b5cf6'], [Shield, 'Rigueur scientifique (CI)', '#10b981']],
+    gradient: 'from-cyan-500 via-blue-500 to-indigo-600', color: '#06b6d4', ribbon: 'ML · Full-Stack', status: 'Déployé · En ligne',
+    demo: 'https://crypto-predict-ai.vercel.app', code: 'https://github.com/badiegmati/crypto-predict-ai',
+    modal: {
+      sub: 'FastAPI · scikit-learn/XGBoost/LightGBM · Next.js 14 · Supabase',
+      intro: "Projet personnel complet, de la recherche d'edge statistique jusqu'au déploiement : validation rigoureuse (walk-forward, intervalles de confiance, réplication hors échantillon) avant toute mise en production. Aucune donnée de compte Binance requise — API publique uniquement.",
+      title1: 'Architecture et pipeline ML',
+      blocks: [
+        ['Couche 1 — Données', Database, '#06b6d4', 'Binance API publique · 511 paires USDT synchronisées · PostgreSQL via Supabase'],
+        ['Couche 2 — Modèles ML', Brain, '#3b82f6', 'RandomForest + XGBoost + LightGBM · vote pondéré · calibration isotonic conditionnelle'],
+        ['Couche 3 — API Backend', Server, '#8b5cf6', 'FastAPI · SQLAlchemy · scheduler automatique · déployé sur Render'],
+        ['Couche 4 — Frontend', Globe, '#6366f1', 'Next.js 14 · TypeScript · Recharts · recherche libre temps réel · déployé sur Vercel'],
+        ['Validation scientifique', Activity, '#10b981', 'Walk-forward 3 folds, intervalles de confiance, réplication 2024-2025 hors échantillon'],
+        ['Signal de sortie', Signal, '#f59e0b', "ACHAT / VENTE / ATTENTE + score de confiance, jamais d'accuracy trompeuse affichée"],
+      ],
+      images: [[cryptoHome, "Page d'accueil — recherche de paires"], [cryptoDashboard, 'Dashboard — signal et métriques']],
+      metrics: [['511', 'Paires USDT suivies'], ['38-48%', 'Win rate (vs 33,3% hasard)'], ['4', 'Horizons de prédiction'], ['24', 'Modèles .pkl en production']],
+      note: "Edge réel confirmé : 38-48% de win rate sur trades filtrés DOGEUSDT/1h (hasard = 33,3% sur 3 classes), validé par walk-forward et répliqué sur données 2024-2025 hors échantillon. Communiqué sans enjoliver — aucune accuracy trompeuse jamais affichée sans intervalle de confiance complet.",
+      links: [],
+    },
   },
   {
     id: 1, icon: Globe,
@@ -147,32 +203,6 @@ const PROJECTS = [
       ],
       metrics: [], steps: ['git clone https://github.com/badiegmati/TicTacToe-AI.git', 'pip install kivy', 'python main.py'],
       links: [['Télécharger', 'https://github.com/badiegmati/TicTacToe-AI/archive/refs/heads/main.zip']],
-    },
-  },
-  {
-    id: 3, cube: true, featured: true, neon: 'rgba(99,102,241,.30)', icon: Box,
-    title: "Rubik's Cube AR — Contrôle Gestuel",
-    description: "Application de réalité augmentée Python : un Rubik's Cube 3×3 flotte devant la caméra et se manipule à la main grâce à MediaPipe Hands. Pincement pour tourner une face, poing pour orbiter, pouce levé pour mélanger.",
-    tech: ['Python', 'OpenCV', 'MediaPipe', 'NumPy', 'Kociemba', 'Vision par ordi'],
-    features: ['Détection 21 landmarks main (MediaPipe)', 'Pincement pouce+index → tourne la face', 'Poing fermé + déplacement → orbite vue', 'Solveur Kociemba optimal (≤20 moves)', 'Moteur facelets WCA complet validé', 'Rendu 3D + particules + effets visuels'],
-    chips: [[Fingerprint, 'Pincement → Face', '#06b6d4'], [Move3d, 'Poing → Orbite', '#8b5cf6'], [Hand, 'Pouce → Mélange', '#3b82f6'], [RotateCcw, 'V → Résolution auto', '#6366f1']],
-    ribbon: 'AR · Vision par ordi', gradient: 'from-indigo-500 via-violet-500 to-cyan-500', color: '#6366f1', status: 'AR · Vision',
-    code: 'https://github.com/badiegmati/-Rubik-Cube',
-    modal: {
-      sub: 'Python · OpenCV · MediaPipe · NumPy · Kociemba', hero: 'cube', title1: 'Contrôle gestuel et architecture',
-      intro: 'Le moteur reproduit fidèlement les 54 facelets WCA, tous les moves valides (U/D/R/L/F/B + tranches M/E/S + rotations globales) et intègre un solveur Kociemba optimal.',
-      blocks: [
-        ['Pincement', Fingerprint, '#06b6d4', 'Pouce + index : attrape et tourne une face'],
-        ['Poing', Move3d, '#8b5cf6', 'Poing fermé + déplacement : orbite caméra'],
-        ['Pouce levé', Hand, '#3b82f6', 'Maintenu ~1 s : mélange aléatoire du cube'],
-        ['Vision', Camera, '#06b6d4', 'MediaPipe Hands 21 pts · pipeline OpenCV · YOLOv8 compatible'],
-        ['Moteur Cube', Box, '#3b82f6', 'Facelets WCA validées · 26 moves + rotations · solveur Kociemba'],
-        ['Rendu 3D', ScanEye, '#6366f1', 'Projection 3D OpenCV · particules et effets · éclairage dynamique'],
-      ],
-      keys: [['Q / Esc', 'Quitter'], ['S', 'Mélanger'], ['R', 'Réinitialiser'], ['V', 'Résoudre'], ['+/-', 'Zoom'], ['Flèches', 'Orbiter']],
-      metrics: [['21', 'Landmarks main'], ['54', 'Facelets WCA'], ['26', 'Moves validés'], ['≤20', 'Moves solution']],
-      steps: ['git clone https://github.com/badiegmati/-Rubik-Cube.git', 'pip install -r requirements.txt', 'python main.py'],
-      links: [['Télécharger', 'https://github.com/badiegmati/-Rubik-Cube/archive/refs/heads/main.zip']],
     },
   },
   {
@@ -249,6 +279,56 @@ function Timeline({ inView, reduced }) {
         ))}
       </div>
       <p className="mt-2.5 text-[11px] leading-relaxed text-gray-500">Deux agents réservent le même véhicule : PostgreSQL accepte la première demande et refuse la seconde.</p>
+    </div>
+  )
+}
+
+/* ═══ Démo signal animée (CryptoPredict AI) ═══ */
+const HORIZONS = ['15m', '1h', '1d', '7d']
+const SIGNALS = [
+  { label: 'ACHAT', color: '#10b981', conf: 0.62 },
+  { label: 'ATTENTE', color: '#f59e0b', conf: 0.38 },
+  { label: 'VENTE', color: '#ef4444', conf: 0.54 },
+  { label: 'ATTENTE', color: '#f59e0b', conf: 0.41 },
+]
+function SignalTicker({ inView, reduced }) {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    if (reduced) return
+    const t = setInterval(() => setIdx((i) => (i + 1) % SIGNALS.length), 2600)
+    return () => clearInterval(t)
+  }, [reduced])
+  const s = SIGNALS[idx]
+  return (
+    <div className="overflow-hidden rounded-xl border border-white/[0.07] p-5" style={{ background: 'rgba(4,8,22,.72)' }}
+      role="img" aria-label="Demonstration animee d'un signal de prediction avec score de confiance">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Coins size={15} className="text-cyan-400" />
+          <span className="font-mono text-sm font-bold text-white">DOGEUSDT</span>
+        </div>
+        <div className="flex gap-1">
+          {HORIZONS.map((h, i) => (
+            <span key={h} className="rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors"
+              style={{ background: i === idx % 4 ? 'rgba(6,182,212,.18)' : 'rgba(255,255,255,.04)', color: i === idx % 4 ? '#22d3ee' : '#6b7280' }}>{h}</span>
+          ))}
+        </div>
+      </div>
+      <AnimatePresence mode="wait">
+        <motion.div key={idx} initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
+          className="mb-3 flex items-center gap-3">
+          <span className="rounded-lg px-3 py-1.5 text-sm font-black tracking-wide" style={{ background: `${s.color}22`, color: s.color, border: `1px solid ${s.color}55` }}>{s.label}</span>
+          <span className="text-xs text-gray-500">Signal ensemble (RF + XGBoost + LightGBM)</span>
+        </motion.div>
+      </AnimatePresence>
+      <div className="mb-1.5 flex items-center justify-between text-[11px] text-gray-500">
+        <span>Score de confiance</span><span className="font-mono font-semibold text-gray-300">{Math.round(s.conf * 100)}%</span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+        <motion.div className="h-full rounded-full" style={{ background: s.color }}
+          initial={reduced ? false : { width: '0%' }} animate={{ width: `${s.conf * 100}%` }} transition={{ duration: 0.9, ease: EASE }} />
+      </div>
+      <p className="mt-3 text-[11px] leading-relaxed text-gray-500">Simulation illustrative du cycle de signal (le site en production affiche les vraies predictions calculees par les modeles).</p>
     </div>
   )
 }
@@ -351,6 +431,48 @@ function DetailModal({ project, onClose, reduced }) {
                 </div>
               )}
 
+              {project.kind === 'crypto' && (
+                <div className="space-y-6">
+                  <div>
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                      <Zap size={16} style={{ color: project.color }} />Points forts
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.chips.map(([I, l, c]) => (
+                        <motion.div key={l} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+                          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
+                          style={{ borderColor: `${c}30`, background: `${c}0d`, color: c }}>
+                          <I size={13} />{l}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                      <Gauge size={16} style={{ color: project.color }} />Indicateurs clés
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                      {project.kpis.map(([v, l], i) => (
+                        <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 200 }}
+                          className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
+                          <div className="text-xl font-black tabular-nums" style={{ color: project.color }}>{v}</div>
+                          <div className="text-[11px] text-gray-500">{l}</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                      <Signal size={16} style={{ color: project.color }} />Démo signal en direct
+                    </div>
+                    <SignalTicker inView reduced={reduced} />
+                  </div>
+                </div>
+              )}
+
               {m.images && (
                 <div className="grid gap-4 md:grid-cols-2">
                   {m.images.map(([src, label], i) => (
@@ -416,7 +538,7 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
   const [hov, setHov] = useState(false)
   const Icon = p.icon
   const btn = 'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200'
-  const ribbonBg = p.kind === 'pfe' ? 'linear-gradient(90deg,#7c3aed,#4f46e5)' : p.cube ? 'linear-gradient(90deg,#6366f1,#8b5cf6,#06b6d4)' : 'linear-gradient(90deg,#3b82f6,#6366f1,#06b6d4)'
+  const ribbonBg = p.kind === 'pfe' ? 'linear-gradient(90deg,#7c3aed,#4f46e5)' : p.cube ? 'linear-gradient(90deg,#6366f1,#8b5cf6,#06b6d4)' : p.kind === 'crypto' ? 'linear-gradient(90deg,#06b6d4,#3b82f6,#6366f1)' : 'linear-gradient(90deg,#3b82f6,#6366f1,#06b6d4)'
   const Label = ({ icon: I, children }) => <div className="mb-3 flex items-center gap-2"><I size={13} style={{ color: p.color }} /><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">{children}</span></div>
   const Bullet = <div className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r ${p.gradient}`} />
 
@@ -440,7 +562,7 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
         {p.ribbon && (
           <motion.div initial={{ x: -60, opacity: 0 }} animate={inView ? { x: 0, opacity: 1 } : {}} transition={{ delay: 0.45, duration: 0.6, ease: EASE }}
             className="absolute left-0 top-5 z-10 flex items-center gap-1.5 rounded-r-full py-1 pl-4 pr-3 text-xs font-bold text-white shadow-lg" style={{ background: ribbonBg }}>
-            {p.kind === 'pfe' ? <Star size={11} fill="white" /> : p.cube ? <Box size={11} /> : <Server size={11} />}{p.ribbon}
+            {p.kind === 'pfe' ? <Star size={11} fill="white" /> : p.cube ? <Box size={11} /> : p.kind === 'crypto' ? <TrendingUp size={11} /> : <Server size={11} />}{p.ribbon}
           </motion.div>
         )}
         <span className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold"
