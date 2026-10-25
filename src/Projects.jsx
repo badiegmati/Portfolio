@@ -1,5 +1,5 @@
-// Projects.jsx — fusion finale : design d'origine (cube 3D, néon, rubans, images) + FleetDesk (calendrier animé intégré au modal) + CryptoPredict AI (signal animé)
-// Palette: #3b82f6 · #8b5cf6 · #06b6d4 · #6366f1 · Animations: transform + opacité · prefers-reduced-motion respecté
+// Projects.jsx — fusion finale : design d'origine (cube 3D, néon, rubans, images) + FleetDesk (calendrier animé) + CryptoPredict AI (signal animé) + ADAS-DMS Lite (score de risque animé) + Galerie PFE (filtres rôle + lightbox)
+// Palette: #3b82f6 · #8b5cf6 · #06b6d4 · #6366f1 · #14b8a6 · Animations: transform + opacité · prefers-reduced-motion respecté
 
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import {
@@ -7,12 +7,29 @@ import {
   X, Car, Server, Smartphone, Gauge, Star, ArrowUpRight, Trophy, Box, Hand, ScanEye, Layers, Brain,
   Fingerprint, Move3d, RotateCcw, CalendarRange, Lock, MousePointer2, Activity,
   TrendingUp, Target, Coins, Signal,
+  ChevronLeft, ChevronRight, Maximize2, UserCog, Users2, UserCircle2,
 } from 'lucide-react'
 import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
 import image1 from './assets/image1.png'
 import image3 from './assets/image4.png'
 import cryptoHome from './assets/crypto-home.png'
 import cryptoDashboard from './assets/crypto-dashboard.png'
+import adasLogin from './assets/adas-login.png'
+import adasDashboardGestionnaire from './assets/adas-dashboard-gestionnaire.png'
+import adasDashboardConducteur from './assets/adas-dashboard-conducteur.png'
+
+// Captures d'écran du projet PFE (place les fichiers dans src/assets/pfe/)
+import alerteConducteur from './assets/pfe/alerte conducteur.jpeg'
+import carteGPS from './assets/pfe/Carte GPS.png'
+import dashboardAdministrateur from './assets/pfe/Dashboard Administrateur.jpeg'
+import dashboardConducteur from './assets/pfe/Dashboard conducteur.jpeg'
+import dashboardGestionnaire from './assets/pfe/Dashboard Gestionnaire.png'
+import historiqueConducteurA from './assets/pfe/Historique conducteur a.png'
+import historiqueConducteurB from './assets/pfe/Historique conducteur b.png'
+import interfaceMessagerie from './assets/pfe/Interface de gestion de messagerie.png'
+import interfaceGestionConducteurs from './assets/pfe/Interface de gestion des conducteurs.png'
+import messageConducteur from './assets/pfe/message conducteur.png'
+import profilConducteur from './assets/pfe/Profil conducteur.png'
 
 /* ═══ CSS injecté ═══ */
 const STYLES = `
@@ -82,6 +99,19 @@ const PROJECTS = [
       sub: 'Edge AI · YOLOv8n · MediaPipe · Spring Boot · React 18 · Flutter',
       intro: "Réalisé en binôme (avec Ahmed Arfaoui) au sein d'Alpha Technology (Ben Arous). Architecture à trois couches : détection embarquée, scoring backend et applications clientes.",
       title1: 'Architecture Edge-to-Cloud',
+      screenshots: [
+        [dashboardAdministrateur, 'Tableau de bord Administrateur', 'admin'],
+        [dashboardGestionnaire, 'Tableau de bord Gestionnaire', 'gestionnaire'],
+        [interfaceGestionConducteurs, 'Gestion des conducteurs', 'gestionnaire'],
+        [interfaceMessagerie, 'Messagerie (vue gestionnaire)', 'gestionnaire'],
+        [dashboardConducteur, 'Tableau de bord Conducteur', 'conducteur'],
+        [profilConducteur, 'Profil du conducteur', 'conducteur'],
+        [carteGPS, 'Carte GPS des alertes géolocalisées', 'conducteur'],
+        [historiqueConducteurA, 'Historique des événements (1/2)', 'conducteur'],
+        [historiqueConducteurB, 'Historique des événements (2/2)', 'conducteur'],
+        [alerteConducteur, 'Alerte de risque critique', 'conducteur'],
+        [messageConducteur, 'Messagerie (vue conducteur)', 'conducteur'],
+      ],
       blocks: [
         ['Couche 1 — Embarquée', Camera, '#a78bfa', 'Raspberry Pi 4 · CAM DMS + ADAS · YOLOv8n · MediaPipe FaceMesh · SQLite (store-and-forward)'],
         ['Couche 2 — Backend & scoring', Server, '#60a5fa', 'Spring Boot (JWT) · Edge Function Supabase (score-drivers, pg_cron 02h00)'],
@@ -122,7 +152,8 @@ const PROJECTS = [
       note: "Pour tester la démo : crée un compte (confirmation par e-mail), puis clique sur « Charger la démo » sur le tableau de bord. Chaque société est isolée par la RLS.",
       links: [['Résumé détaillé', 'https://github.com/badiegmati/fleetdesk/blob/main/resume.md']],
     },
-  },{
+  },
+  {
     id: 3, cube: true, featured: true, neon: 'rgba(99,102,241,.30)', icon: Box,
     title: "Rubik's Cube AR — Contrôle Gestuel",
     description: "Application de réalité augmentée Python : un Rubik's Cube 3×3 flotte devant la caméra et se manipule à la main grâce à MediaPipe Hands. Pincement pour tourner une face, poing pour orbiter, pouce levé pour mélanger.",
@@ -173,6 +204,44 @@ const PROJECTS = [
       images: [[cryptoHome, "Page d'accueil — recherche de paires"], [cryptoDashboard, 'Dashboard — signal et métriques']],
       metrics: [['511', 'Paires USDT suivies'], ['38-48%', 'Win rate (vs 33,3% hasard)'], ['4', 'Horizons de prédiction'], ['24', 'Modèles .pkl en production']],
       note: "Edge réel confirmé : 38-48% de win rate sur trades filtrés DOGEUSDT/1h (hasard = 33,3% sur 3 classes), validé par walk-forward et répliqué sur données 2024-2025 hors échantillon. Communiqué sans enjoliver — aucune accuracy trompeuse jamais affichée sans intervalle de confiance complet.",
+      links: [],
+    },
+  },
+  {
+    id: 9, kind: 'adas', featured: false, neon: 'rgba(20,184,166,.28)', icon: Eye,
+    title: 'ADAS-DMS Lite — Supervision du Comportement du Conducteur',
+    description: "Projet académique : supervision du comportement du conducteur par vision par ordinateur. Détection de la somnolence et du bâillement par webcam (EAR/MAR), détection du téléphone au volant (YOLOv8n), score de risque calculé par décroissance exponentielle, et trois tableaux de bord par rôle (admin, gestionnaire, conducteur) déployés en production.",
+    tech: ['Python', 'OpenCV', 'MediaPipe', 'YOLOv8n', 'Spring Boot 3', 'Java 17', 'Supabase', 'PostgreSQL', 'React 18', 'Vite', 'TailwindCSS', 'Render', 'Vercel'],
+    features: [
+      'Détection EAR/MAR (somnolence, bâillement) via webcam',
+      "Détection du téléphone au volant (YOLOv8n)",
+      'Score de risque par décroissance exponentielle',
+      'Authentification JWT (cookie httpOnly) et 3 rôles distincts',
+    ],
+    kpis: [['3', 'Rôles utilisateurs'], ['JWT', 'Cookie httpOnly sécurisé'], ['2', 'Signaux (EAR + MAR)'], ['3', 'Services cloud déployés']],
+    chips: [[Shield, 'Isolation par gestionnaire', '#14b8a6'], [Lock, 'JWT httpOnly', '#06b6d4'], [Eye, 'Détection webcam', '#10b981'], [Gauge, 'Score exponentiel', '#22c55e']],
+    gradient: 'from-teal-500 via-emerald-500 to-green-600', color: '#14b8a6',
+    ribbon: 'Projet académique', status: 'Déployé · En ligne',
+    demo: 'https://adas-dms-lite.vercel.app',
+    modal: {
+      sub: 'Python · MediaPipe · YOLOv8n · Spring Boot 3 · React 18 · Supabase',
+      intro: "Projet universitaire autonome (version simplifiée, sans matériel embarqué ni machine learning avancé) : un client de détection en Python écrit directement les alertes dans Supabase, un backend Spring Boot sécurise l'accès aux données par rôle, et un frontend React affiche trois tableaux de bord distincts.",
+      title1: 'Architecture et captures du projet',
+      images: [
+        [adasLogin, 'Page de connexion'],
+        [adasDashboardGestionnaire, 'Dashboard gestionnaire — carte Leaflet'],
+        [adasDashboardConducteur, 'Dashboard conducteur'],
+      ],
+      blocks: [
+        ['Client de détection', Camera, '#14b8a6', 'Python + OpenCV + MediaPipe Face Mesh : calcul EAR/MAR, YOLOv8n pour la détection du téléphone, écriture directe des alertes dans Supabase'],
+        ['Backend API', Server, '#06b6d4', 'Spring Boot 3 / Java 17 : authentification JWT (cookie httpOnly), routes par rôle, calcul du score de risque en SQL'],
+        ['Base de données', Database, '#10b981', 'Supabase / PostgreSQL managé, source unique de vérité partagée entre le client Python et le backend'],
+        ['Frontend', Globe, '#22c55e', 'React 18 + Vite + TailwindCSS : 3 tableaux de bord par rôle, carte Leaflet/OpenStreetMap'],
+        ['Sécurité', Shield, '#06b6d4', 'Isolation stricte des données entre gestionnaires, vérifiée par tests manuels (accès refusé 401/403)'],
+        ['Déploiement', Zap, '#14b8a6', 'Backend conteneurisé (Docker) sur Render, frontend statique sur Vercel, cookie cross-domain SameSite=None'],
+      ],
+      metrics: [],
+      note: "Projet académique réalisé en complément du PFE, dans une version volontairement simplifiée : pas de matériel embarqué, pas de modèle de machine learning entraîné, pas d'application mobile. L'objectif était de maîtriser l'ensemble de la chaîne (détection, backend, frontend, déploiement cloud) sur un périmètre réduit.",
       links: [],
     },
   },
@@ -333,6 +402,167 @@ function SignalTicker({ inView, reduced }) {
   )
 }
 
+/* ═══ Démo score de risque animée (ADAS-DMS Lite) ═══ */
+const ALERTES_ADAS = [
+  { label: 'RAS — conduite normale', color: '#10b981', score: 94 },
+  { label: 'Bâillement détecté', color: '#f59e0b', score: 76 },
+  { label: 'Somnolence (EAR bas)', color: '#ef4444', score: 52 },
+  { label: 'Téléphone au volant', color: '#ef4444', score: 61 },
+]
+function RiskScoreDemo({ inView, reduced }) {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    if (reduced) return
+    const t = setInterval(() => setIdx((i) => (i + 1) % ALERTES_ADAS.length), 2600)
+    return () => clearInterval(t)
+  }, [reduced])
+  const a = ALERTES_ADAS[idx]
+  return (
+    <div className="overflow-hidden rounded-xl border border-white/[0.07] p-5" style={{ background: 'rgba(4,8,22,.72)' }}
+      role="img" aria-label="Démonstration animée du score de risque et des alertes de supervision">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Eye size={15} className="text-teal-400" />
+          <span className="font-mono text-sm font-bold text-white">Conducteur C10</span>
+        </div>
+        <span className="rounded-md px-2 py-0.5 text-[10px] font-semibold" style={{ background: 'rgba(20,184,166,.15)', color: '#2dd4bf' }}>webcam active</span>
+      </div>
+      <AnimatePresence mode="wait">
+        <motion.div key={idx} initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
+          className="mb-3 flex items-center gap-3">
+          <span className="rounded-lg px-3 py-1.5 text-sm font-black tracking-wide" style={{ background: `${a.color}22`, color: a.color, border: `1px solid ${a.color}55` }}>{a.label}</span>
+        </motion.div>
+      </AnimatePresence>
+      <div className="mb-1.5 flex items-center justify-between text-[11px] text-gray-500">
+        <span>Score de risque</span><span className="font-mono font-semibold text-gray-300">{a.score}/100</span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+        <motion.div className="h-full rounded-full" style={{ background: a.color }}
+          initial={reduced ? false : { width: '0%' }} animate={{ width: `${a.score}%` }} transition={{ duration: 0.9, ease: EASE }} />
+      </div>
+      <p className="mt-3 text-[11px] leading-relaxed text-gray-500">Simulation illustrative du cycle d'alerte (le score réel décroît exponentiellement après chaque événement détecté par le client Python).</p>
+    </div>
+  )
+}
+
+/* ═══ Galerie de captures — PFE ADAS/DMS ═══ */
+const PFE_ROLES = [
+  { k: 'tous', l: 'Toutes', icon: ScanEye, color: '#a78bfa' },
+  { k: 'admin', l: 'Administrateur', icon: UserCog, color: '#a78bfa' },
+  { k: 'gestionnaire', l: 'Gestionnaire', icon: Users2, color: '#22d3ee' },
+  { k: 'conducteur', l: 'Conducteur', icon: UserCircle2, color: '#fb7185' },
+]
+
+function ScreenshotGallery({ screenshots, reduced }) {
+  const [cat, setCat] = useState('tous')
+  const [lightbox, setLightbox] = useState(null)
+  const filtered = cat === 'tous' ? screenshots : screenshots.filter((s) => s[2] === cat)
+  const roleColor = (k) => PFE_ROLES.find((r) => r.k === k)?.color || '#a78bfa'
+
+  useEffect(() => {
+    if (lightbox === null) return
+    const k = (e) => {
+      if (e.key === 'Escape') setLightbox(null)
+      if (e.key === 'ArrowRight') setLightbox((i) => (i + 1) % filtered.length)
+      if (e.key === 'ArrowLeft') setLightbox((i) => (i - 1 + filtered.length) % filtered.length)
+    }
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
+  }, [lightbox, filtered.length])
+
+  return (
+    <div>
+      {/* Filtres par rôle */}
+      <div className="mb-4 flex flex-wrap gap-1.5">
+        {PFE_ROLES.map((r) => {
+          const count = r.k === 'tous' ? screenshots.length : screenshots.filter((s) => s[2] === r.k).length
+          return (
+            <button key={r.k} onClick={() => { setCat(r.k); setLightbox(null) }}
+              className="relative flex items-center gap-1.5 overflow-hidden rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-200"
+              style={{ color: cat === r.k ? '#fff' : '#9ca3af', background: cat === r.k ? 'transparent' : 'rgba(255,255,255,.04)' }}>
+              {cat === r.k && (
+                <motion.div layoutId="pfe-role-filter" className="absolute inset-0"
+                  style={{ background: `linear-gradient(90deg,${r.color}dd,${r.color}99)` }}
+                  transition={{ type: 'spring', stiffness: 340, damping: 28 }} />
+              )}
+              <span className="relative z-10 flex items-center gap-1.5">
+                <r.icon size={13} />{r.l}
+                <span className="rounded-full bg-black/25 px-1.5 text-[10px]">{count}</span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Grille de vignettes */}
+      <motion.div layout className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <AnimatePresence mode="popLayout">
+          {filtered.map(([src, label, c], i) => (
+            <motion.button key={src} layout type="button" onClick={() => setLightbox(i)}
+              initial={{ opacity: 0, y: 14, scale: 0.92 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: reduced ? 0 : i * 0.04, duration: 0.4, ease: EASE }}
+              whileHover={reduced ? {} : { y: -4, scale: 1.02 }}
+              className="group relative overflow-hidden rounded-xl border text-left"
+              style={{ borderColor: `${roleColor(c)}35`, boxShadow: `0 8px 24px ${roleColor(c)}14` }}>
+              <img src={src} alt={label} loading="lazy"
+                className="h-32 w-full object-cover object-top transition-transform duration-500 group-hover:scale-110 sm:h-36" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-85 transition-opacity duration-300 group-hover:opacity-95" />
+              <div className="absolute inset-x-0 bottom-0 p-2">
+                <span className="mb-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+                  style={{ background: `${roleColor(c)}2a`, color: roleColor(c) }}>
+                  {PFE_ROLES.find((r) => r.k === c)?.l}
+                </span>
+                <p className="text-[11px] font-medium leading-tight text-white">{label}</p>
+              </div>
+              <div className="absolute right-1.5 top-1.5 rounded-lg bg-black/40 p-1 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+                <Maximize2 size={12} className="text-white" />
+              </div>
+            </motion.button>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Lightbox plein écran */}
+      <AnimatePresence>
+        {lightbox !== null && filtered[lightbox] && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4 backdrop-blur-2xl"
+            onClick={() => setLightbox(null)}>
+            <button onClick={() => setLightbox(null)} aria-label="Fermer"
+              className="absolute right-5 top-5 rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/10">
+              <X size={20} />
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + filtered.length) % filtered.length) }}
+              aria-label="Précédent"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/15 md:left-6">
+              <ChevronLeft size={22} />
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % filtered.length) }}
+              aria-label="Suivant"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/15 md:right-6">
+              <ChevronRight size={22} />
+            </button>
+            <motion.div key={lightbox} initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: EASE }} onClick={(e) => e.stopPropagation()}
+              className="flex max-h-[88vh] max-w-4xl flex-col items-center gap-4">
+              <img src={filtered[lightbox][0]} alt={filtered[lightbox][1]}
+                className="max-h-[75vh] rounded-xl border border-white/10 object-contain shadow-2xl" />
+              <div className="flex flex-wrap items-center justify-center gap-3 text-center">
+                <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+                  style={{ background: `${roleColor(filtered[lightbox][2])}2a`, color: roleColor(filtered[lightbox][2]) }}>
+                  {PFE_ROLES.find((r) => r.k === filtered[lightbox][2])?.l}
+                </span>
+                <p className="text-sm font-medium text-white">{filtered[lightbox][1]}</p>
+                <span className="font-mono text-xs text-gray-500">{lightbox + 1}/{filtered.length}</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 /* ═══ Modal détaillé (piloté par les données) ═══ */
 function DetailModal({ project, onClose, reduced }) {
   const m = project?.modal
@@ -388,6 +618,15 @@ function DetailModal({ project, onClose, reduced }) {
                   </div>
                 </div>
               ) : <p className="text-sm leading-relaxed text-gray-300">{m.intro}</p>}
+
+              {project.kind === 'pfe' && m.screenshots && (
+                <div>
+                  <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
+                    <Camera size={16} style={{ color: project.color }} />Captures d'écran de l'application
+                  </div>
+                  <ScreenshotGallery screenshots={m.screenshots} reduced={reduced} />
+                </div>
+              )}
 
               {project.kind === 'fleet' && (
                 <div className="space-y-6">
@@ -473,6 +712,48 @@ function DetailModal({ project, onClose, reduced }) {
                 </div>
               )}
 
+              {project.kind === 'adas' && (
+                <div className="space-y-6">
+                  <div>
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                      <Zap size={16} style={{ color: project.color }} />Points forts
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.chips.map(([I, l, c]) => (
+                        <motion.div key={l} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+                          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
+                          style={{ borderColor: `${c}30`, background: `${c}0d`, color: c }}>
+                          <I size={13} />{l}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                      <Gauge size={16} style={{ color: project.color }} />Indicateurs clés
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                      {project.kpis.map(([v, l], i) => (
+                        <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 200 }}
+                          className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
+                          <div className="text-xl font-black tabular-nums" style={{ color: project.color }}>{v}</div>
+                          <div className="text-[11px] text-gray-500">{l}</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                      <Activity size={16} style={{ color: project.color }} />Supervision en direct
+                    </div>
+                    <RiskScoreDemo inView reduced={reduced} />
+                  </div>
+                </div>
+              )}
+
               {m.images && (
                 <div className="grid gap-4 md:grid-cols-2">
                   {m.images.map(([src, label], i) => (
@@ -538,7 +819,7 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
   const [hov, setHov] = useState(false)
   const Icon = p.icon
   const btn = 'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200'
-  const ribbonBg = p.kind === 'pfe' ? 'linear-gradient(90deg,#7c3aed,#4f46e5)' : p.cube ? 'linear-gradient(90deg,#6366f1,#8b5cf6,#06b6d4)' : p.kind === 'crypto' ? 'linear-gradient(90deg,#06b6d4,#3b82f6,#6366f1)' : 'linear-gradient(90deg,#3b82f6,#6366f1,#06b6d4)'
+  const ribbonBg = p.kind === 'pfe' ? 'linear-gradient(90deg,#7c3aed,#4f46e5)' : p.cube ? 'linear-gradient(90deg,#6366f1,#8b5cf6,#06b6d4)' : p.kind === 'crypto' ? 'linear-gradient(90deg,#06b6d4,#3b82f6,#6366f1)' : p.kind === 'adas' ? 'linear-gradient(90deg,#14b8a6,#10b981,#22c55e)' : 'linear-gradient(90deg,#3b82f6,#6366f1,#06b6d4)'
   const Label = ({ icon: I, children }) => <div className="mb-3 flex items-center gap-2"><I size={13} style={{ color: p.color }} /><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">{children}</span></div>
   const Bullet = <div className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r ${p.gradient}`} />
 
@@ -562,7 +843,7 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
         {p.ribbon && (
           <motion.div initial={{ x: -60, opacity: 0 }} animate={inView ? { x: 0, opacity: 1 } : {}} transition={{ delay: 0.45, duration: 0.6, ease: EASE }}
             className="absolute left-0 top-5 z-10 flex items-center gap-1.5 rounded-r-full py-1 pl-4 pr-3 text-xs font-bold text-white shadow-lg" style={{ background: ribbonBg }}>
-            {p.kind === 'pfe' ? <Star size={11} fill="white" /> : p.cube ? <Box size={11} /> : p.kind === 'crypto' ? <TrendingUp size={11} /> : <Server size={11} />}{p.ribbon}
+            {p.kind === 'pfe' ? <Star size={11} fill="white" /> : p.cube ? <Box size={11} /> : p.kind === 'crypto' ? <TrendingUp size={11} /> : p.kind === 'adas' ? <Eye size={11} /> : <Server size={11} />}{p.ribbon}
           </motion.div>
         )}
         <span className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold"
