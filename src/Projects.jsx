@@ -1,3 +1,4 @@
+// Projects.jsx v4 — fusion finale + captures (aperçu navigateur animé), spotlight + tilt 3D, compteurs, accessibilité
 // Projects.jsx — fusion finale : design d'origine (cube 3D, néon, rubans, images) + FleetDesk (calendrier animé) + CryptoPredict AI (signal animé) + ADAS-DMS Lite (score de risque animé) + Galerie PFE (filtres rôle + lightbox)
 // Palette: #3b82f6 · #8b5cf6 · #06b6d4 · #6366f1 · #14b8a6 · Animations: transform + opacité · prefers-reduced-motion respecté
 
@@ -9,14 +10,22 @@ import {
   TrendingUp, Target, Coins, Signal,
   ChevronLeft, ChevronRight, Maximize2, UserCog, Users2, UserCircle2,
 } from 'lucide-react'
-import { motion, AnimatePresence, useReducedMotion, useInView } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion, useInView, useMotionValue, useSpring, useTransform, animate } from 'framer-motion'
 import image1 from './assets/image1.png'
 import image3 from './assets/image4.png'
 import cryptoHome from './assets/crypto-home.png'
 import cryptoDashboard from './assets/crypto-dashboard.png'
-import adasLogin from './assets/adas-login.png'
-import adasDashboardGestionnaire from './assets/adas-dashboard-gestionnaire.png'
-import adasDashboardConducteur from './assets/adas-dashboard-conducteur.png'
+
+// Captures ADAS-DMS Lite — interface v2 (place les fichiers dans src/assets/adas-v2/)
+import adasLogin from './assets/adas-v2/login.webp'
+import adasGestDash from './assets/adas-v2/gestionnaire-dashboard.webp'
+import adasGestDetail from './assets/adas-v2/gestionnaire-detail.webp'
+import adasGestVehicules from './assets/adas-v2/gestionnaire-vehicules.webp'
+import adasGestMessages from './assets/adas-v2/gestionnaire-messages.webp'
+import adasCondDash from './assets/adas-v2/conducteur-dashboard.webp'
+import adasCondHistorique from './assets/adas-v2/conducteur-historique.webp'
+import adasAdminGest from './assets/adas-v2/admin-gestionnaires.webp'
+import adasMobile from './assets/adas-v2/mobile-gestionnaire.webp'
 
 // Captures d'écran du projet PFE (place les fichiers dans src/assets/pfe/)
 import alerteConducteur from './assets/pfe/alerte conducteur.jpeg'
@@ -39,6 +48,11 @@ const STYLES = `
   @keyframes pj-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   @keyframes pj-cube{from{transform:rotateX(-20deg) rotateY(0)}to{transform:rotateX(-20deg) rotateY(360deg)}}
   @keyframes pj-neon{0%,100%{box-shadow:0 0 18px var(--nc,rgba(99,102,241,.18)),0 0 36px rgba(139,92,246,.10)}50%{box-shadow:0 0 32px var(--nc,rgba(99,102,241,.32)),0 0 64px rgba(139,92,246,.18)}}
+  @keyframes pj-shine{from{transform:translateX(-130%) skewX(-20deg)}to{transform:translateX(330%) skewX(-20deg)}}
+  .pj-btn{position:relative;overflow:hidden}
+  .pj-btn::after{content:'';position:absolute;top:0;bottom:0;left:0;width:36%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);transform:translateX(-130%) skewX(-20deg);pointer-events:none}
+  .pj-btn:hover::after{animation:pj-shine .9s ease}
+  #projects a:focus-visible,#projects button:focus-visible{outline:2px solid #22d3ee;outline-offset:2px}
   .pj-gt{background-size:300% 100%;animation:pj-grad 6s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
   .pj-spin{animation:pj-spin 18s linear infinite}.pj-spin-r{animation:pj-spin-r 18s linear infinite}
   .pj-neon{animation:pj-neon 3s ease-in-out infinite}
@@ -51,16 +65,16 @@ const STYLES = `
   .rk-f4{background:#16a34a;transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
   .rk-f5{background:#f8fafc;transform:rotateX(90deg) translateZ(calc(var(--s)/2))}
   .rk-f6{background:#facc15;transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
-  @media (prefers-reduced-motion:reduce){.pj-gt,.pj-spin,.pj-spin-r,.pj-neon,.rk-rig,.rk-cube{animation:none!important}}
+  @media (prefers-reduced-motion:reduce){.pj-btn:hover::after{animation:none!important}.pj-gt,.pj-spin,.pj-spin-r,.pj-neon,.rk-rig,.rk-cube{animation:none!important}}
 `
 function StyleInject() {
   useEffect(() => {
-    if (document.getElementById('pj-pro-v3')) return
+    if (document.getElementById('pj-pro-v4')) return
     const el = document.createElement('style')
-    el.id = 'pj-pro-v3'
+    el.id = 'pj-pro-v4'
     el.textContent = STYLES
     document.head.appendChild(el)
-    return () => document.getElementById('pj-pro-v3')?.remove()
+    return () => document.getElementById('pj-pro-v4')?.remove()
   }, [])
   return null
 }
@@ -95,6 +109,7 @@ const PROJECTS = [
     side: [['91,6 %', 'Détection'], ['≤130 ms', 'Latence'], ['52/52', 'Endpoints'], ['74/74', 'Tests C10']],
     gradient: 'from-violet-600 via-purple-500 to-indigo-600', color: '#8b5cf6', ribbon: 'Projet PFE', status: 'Alpha Technology · Binôme',
     demo: 'https://badiegmati.github.io/Projet_pfe/', code: 'https://github.com/badiegmati/Projet_pfe',
+    previews: [[dashboardGestionnaire, 'Tableau de bord Gestionnaire'], [dashboardConducteur, 'Tableau de bord Conducteur'], [carteGPS, 'Carte GPS des alertes'], [dashboardAdministrateur, 'Tableau de bord Administrateur']],
     modal: {
       sub: 'Edge AI · YOLOv8n · MediaPipe · Spring Boot · React 18 · Flutter',
       intro: "Réalisé en binôme (avec Ahmed Arfaoui) au sein d'Alpha Technology (Ben Arous). Architecture à trois couches : détection embarquée, scoring backend et applications clientes.",
@@ -189,6 +204,7 @@ const PROJECTS = [
     chips: [[Brain, 'Ensemble ML pondéré', '#06b6d4'], [Target, 'Confiance calibrée', '#3b82f6'], [Activity, 'Backtest walk-forward', '#8b5cf6'], [Shield, 'Rigueur scientifique (CI)', '#10b981']],
     gradient: 'from-cyan-500 via-blue-500 to-indigo-600', color: '#06b6d4', ribbon: 'ML · Full-Stack', status: 'Déployé · En ligne',
     demo: 'https://crypto-predict-ai.vercel.app', code: 'https://github.com/badiegmati/crypto-predict-ai',
+    previews: [[cryptoDashboard, 'Dashboard — signal et métriques'], [cryptoHome, "Page d'accueil — recherche de paires"]],
     modal: {
       sub: 'FastAPI · scikit-learn/XGBoost/LightGBM · Next.js 14 · Supabase',
       intro: "Projet personnel complet, de la recherche d'edge statistique jusqu'au déploiement : validation rigoureuse (walk-forward, intervalles de confiance, réplication hors échantillon) avant toute mise en production. Aucune donnée de compte Binance requise — API publique uniquement.",
@@ -210,27 +226,35 @@ const PROJECTS = [
   {
     id: 9, kind: 'adas', featured: false, neon: 'rgba(20,184,166,.28)', icon: Eye,
     title: 'ADAS-DMS Lite — Supervision du Comportement du Conducteur',
-    description: "Projet académique : supervision du comportement du conducteur par vision par ordinateur. Détection de la somnolence et du bâillement par webcam (EAR/MAR), détection du téléphone au volant (YOLOv8n), score de risque calculé par décroissance exponentielle, et trois tableaux de bord par rôle (admin, gestionnaire, conducteur) déployés en production.",
-    tech: ['Python', 'OpenCV', 'MediaPipe', 'YOLOv8n', 'Spring Boot 3', 'Java 17', 'Supabase', 'PostgreSQL', 'React 18', 'Vite', 'TailwindCSS', 'Render', 'Vercel'],
+    description: "Projet académique : supervision du comportement du conducteur par vision par ordinateur. Détection de la somnolence et du bâillement par webcam (EAR/MAR), détection du téléphone au volant (YOLOv8n), score de risque calculé par décroissance exponentielle, et trois tableaux de bord par rôle (admin, gestionnaire, conducteur). Interface v2 repensée en Interaction Homme-Machine : accessibilité WCAG 2.2, animations sobres, évaluation heuristique et test utilisateur.",
+    tech: ['Python', 'OpenCV', 'MediaPipe', 'YOLOv8n', 'Spring Boot 3', 'Java 17', 'Supabase', 'PostgreSQL', 'React 18', 'Vite', 'TailwindCSS', 'Framer Motion', 'Chart.js', 'Leaflet', 'Render', 'Vercel'],
     features: [
       'Détection EAR/MAR (somnolence, bâillement) via webcam',
       "Détection du téléphone au volant (YOLOv8n)",
       'Score de risque par décroissance exponentielle',
       'Authentification JWT (cookie httpOnly) et 3 rôles distincts',
+      'Interface accessible : niveau de risque en texte + icône + couleur, navigation clavier, animations réduites sur demande',
     ],
-    kpis: [['3', 'Rôles utilisateurs'], ['JWT', 'Cookie httpOnly sécurisé'], ['2', 'Signaux (EAR + MAR)'], ['3', 'Services cloud déployés']],
-    chips: [[Shield, 'Isolation par gestionnaire', '#14b8a6'], [Lock, 'JWT httpOnly', '#06b6d4'], [Eye, 'Détection webcam', '#10b981'], [Gauge, 'Score exponentiel', '#22c55e']],
+    kpis: [['3', 'Rôles utilisateurs'], ['WCAG 2.2', 'Accessibilité visée (AA)'], ['4', 'Niveaux de risque'], ['3', 'Services cloud déployés']],
+    chips: [[Shield, 'Isolation par gestionnaire', '#14b8a6'], [Lock, 'JWT httpOnly', '#06b6d4'], [Eye, 'Détection webcam', '#10b981'], [Gauge, 'Score exponentiel', '#22c55e'], [Layers, 'Design accessible WCAG 2.2', '#2dd4bf']],
     gradient: 'from-teal-500 via-emerald-500 to-green-600', color: '#14b8a6',
     ribbon: 'Projet académique', status: 'Déployé · En ligne',
-    demo: 'https://adas-dms-lite.vercel.app',
+    demo: 'https://adas-dms-lite-9d16.vercel.app',code: 'https://github.com/badiegmati/ADAS-DMS-Lite',
+    previews: [[adasGestDash, 'Tableau de bord gestionnaire'], [adasGestDetail, 'Détail d’un conducteur'], [adasCondDash, 'Score de risque conducteur'], [adasGestMessages, 'Messagerie']],
     modal: {
       sub: 'Python · MediaPipe · YOLOv8n · Spring Boot 3 · React 18 · Supabase',
       intro: "Projet universitaire autonome (version simplifiée, sans matériel embarqué ni machine learning avancé) : un client de détection en Python écrit directement les alertes dans Supabase, un backend Spring Boot sécurise l'accès aux données par rôle, et un frontend React affiche trois tableaux de bord distincts.",
       title1: 'Architecture et captures du projet',
-      images: [
-        [adasLogin, 'Page de connexion'],
-        [adasDashboardGestionnaire, 'Dashboard gestionnaire — carte Leaflet'],
-        [adasDashboardConducteur, 'Dashboard conducteur'],
+      screenshots: [
+        [adasLogin, 'Page de connexion (choix du rôle)', 'commun'],
+        [adasMobile, 'Affichage mobile (390 px)', 'commun'],
+        [adasAdminGest, 'Gestion des gestionnaires', 'admin'],
+        [adasGestDash, 'Tableau de bord de la flotte', 'gestionnaire'],
+        [adasGestDetail, 'Détail conducteur : score, courbe, alertes', 'gestionnaire'],
+        [adasGestVehicules, 'Gestion des véhicules', 'gestionnaire'],
+        [adasGestMessages, 'Messagerie (vue gestionnaire)', 'gestionnaire'],
+        [adasCondDash, 'Mon score de risque', 'conducteur'],
+        [adasCondHistorique, 'Historique du score', 'conducteur'],
       ],
       blocks: [
         ['Client de détection', Camera, '#14b8a6', 'Python + OpenCV + MediaPipe Face Mesh : calcul EAR/MAR, YOLOv8n pour la détection du téléphone, écriture directe des alertes dans Supabase'],
@@ -241,7 +265,7 @@ const PROJECTS = [
         ['Déploiement', Zap, '#14b8a6', 'Backend conteneurisé (Docker) sur Render, frontend statique sur Vercel, cookie cross-domain SameSite=None'],
       ],
       metrics: [],
-      note: "Projet académique réalisé en complément du PFE, dans une version volontairement simplifiée : pas de matériel embarqué, pas de modèle de machine learning entraîné, pas d'application mobile. L'objectif était de maîtriser l'ensemble de la chaîne (détection, backend, frontend, déploiement cloud) sur un périmètre réduit.",
+      note: "Captures réalisées avec des données de démonstration. Projet académique réalisé en complément du PFE, dans une version volontairement simplifiée : pas de matériel embarqué, pas de modèle de machine learning entraîné, pas d'application mobile. L'objectif était de maîtriser l'ensemble de la chaîne (détection, backend, frontend, déploiement cloud) sur un périmètre réduit.",
       links: [],
     },
   },
@@ -262,6 +286,7 @@ const PROJECTS = [
     features: ['Interface Kivy moderne', "3 niveaux d'IA", 'Algorithme Minimax optimisé', 'Système de score persistant'],
     gradient: 'from-green-500 via-emerald-500 to-cyan-600', color: '#10b981', status: 'Actif',
     code: 'https://github.com/badiegmati/TicTacToe-AI',
+    previews: [[image1, 'Interface du jeu'], [image3, 'Écran de victoire']],
     modal: {
       sub: 'Python · Kivy · Minimax', intro: 'Ce jeu Python nécessite une installation locale. Voici comment le tester :', title1: 'Fonctionnalités',
       images: [[image1, 'Interface du jeu'], [image3, 'Écran de victoire']],
@@ -451,6 +476,7 @@ const PFE_ROLES = [
   { k: 'admin', l: 'Administrateur', icon: UserCog, color: '#a78bfa' },
   { k: 'gestionnaire', l: 'Gestionnaire', icon: Users2, color: '#22d3ee' },
   { k: 'conducteur', l: 'Conducteur', icon: UserCircle2, color: '#fb7185' },
+  { k: 'commun', l: 'Commun', icon: Layers, color: '#2dd4bf' },
 ]
 
 function ScreenshotGallery({ screenshots, reduced }) {
@@ -473,11 +499,12 @@ function ScreenshotGallery({ screenshots, reduced }) {
   return (
     <div>
       {/* Filtres par rôle */}
-      <div className="mb-4 flex flex-wrap gap-1.5">
+      <div className="mb-4 flex flex-wrap gap-1.5" role="group" aria-label="Filtrer les captures par rôle">
         {PFE_ROLES.map((r) => {
           const count = r.k === 'tous' ? screenshots.length : screenshots.filter((s) => s[2] === r.k).length
+          if (r.k !== 'tous' && !count) return null
           return (
-            <button key={r.k} onClick={() => { setCat(r.k); setLightbox(null) }}
+            <button key={r.k} type="button" aria-pressed={cat === r.k} onClick={() => { setCat(r.k); setLightbox(null) }}
               className="relative flex items-center gap-1.5 overflow-hidden rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-200"
               style={{ color: cat === r.k ? '#fff' : '#9ca3af', background: cat === r.k ? 'transparent' : 'rgba(255,255,255,.04)' }}>
               {cat === r.k && (
@@ -525,7 +552,7 @@ function ScreenshotGallery({ screenshots, reduced }) {
       {/* Lightbox plein écran */}
       <AnimatePresence>
         {lightbox !== null && filtered[lightbox] && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          <motion.div role="dialog" aria-modal="true" aria-label="Capture en plein écran" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4 backdrop-blur-2xl"
             onClick={() => setLightbox(null)}>
             <button onClick={() => setLightbox(null)} aria-label="Fermer"
@@ -566,6 +593,13 @@ function ScreenshotGallery({ screenshots, reduced }) {
 /* ═══ Modal détaillé (piloté par les données) ═══ */
 function DetailModal({ project, onClose, reduced }) {
   const m = project?.modal
+  const closeRef = useRef(null)
+  useEffect(() => {
+    if (!project) return
+    const prev = document.activeElement
+    const t = setTimeout(() => closeRef.current?.focus(), 80)
+    return () => { clearTimeout(t); prev?.focus?.() }
+  }, [project])
   useEffect(() => {
     if (!project) return
     document.body.style.overflow = 'hidden'
@@ -592,7 +626,7 @@ function DetailModal({ project, onClose, reduced }) {
                 {project.cube ? <Cube s={44} /> : <div className={`rounded-xl bg-gradient-to-br ${project.gradient} p-2.5`}><project.icon className="text-white" size={22} /></div>}
                 <div><h3 className="text-lg font-bold leading-tight text-white">{project.title}</h3><p className="mt-0.5 text-xs text-gray-400">{m.sub}</p></div>
               </div>
-              <button onClick={onClose} aria-label="Fermer" className="flex-shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.05] p-2 text-gray-400 transition hover:bg-white/[0.09] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"><X size={18} /></button>
+              <button ref={closeRef} onClick={onClose} aria-label="Fermer" className="flex-shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.05] p-2 text-gray-400 transition hover:bg-white/[0.09] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"><X size={18} /></button>
             </div>
 
             <div className="space-y-9 p-8">
@@ -619,7 +653,7 @@ function DetailModal({ project, onClose, reduced }) {
                 </div>
               ) : <p className="text-sm leading-relaxed text-gray-300">{m.intro}</p>}
 
-              {project.kind === 'pfe' && m.screenshots && (
+              {m.screenshots && (
                 <div>
                   <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
                     <Camera size={16} style={{ color: project.color }} />Captures d'écran de l'application
@@ -812,11 +846,93 @@ function DetailModal({ project, onClose, reduced }) {
   )
 }
 
+/* ═══ Aperçu « fenêtre de navigateur » animé (captures) ═══ */
+function BrowserPreview({ shots, color, demo, reduced, onOpen }) {
+  const [i, setI] = useState(0)
+  const [paused, setPaused] = useState(false)
+  useEffect(() => {
+    if (reduced || paused || shots.length < 2) return
+    const t = setInterval(() => setI((v) => (v + 1) % shots.length), 3800)
+    return () => clearInterval(t)
+  }, [reduced, paused, shots.length])
+  const host = demo ? demo.replace(/^https?:\/\//, '').replace(/\/.*$/, '') : 'application locale'
+  const [src, label] = shots[i]
+  return (
+    <div className="mb-6" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
+      <div className="overflow-hidden rounded-xl border shadow-xl" style={{ borderColor: `${color}38`, background: 'rgba(4,8,22,.7)', boxShadow: `0 18px 50px ${color}1f` }}>
+        <div className="flex items-center gap-2 border-b border-white/[0.06] bg-white/[0.03] px-3 py-2">
+          <span className="flex gap-1.5" aria-hidden="true">
+            <i className="h-2 w-2 rounded-full bg-red-400/70" /><i className="h-2 w-2 rounded-full bg-amber-300/70" /><i className="h-2 w-2 rounded-full bg-emerald-400/70" />
+          </span>
+          <span className="mx-auto flex max-w-[70%] flex-1 items-center justify-center gap-1.5 truncate rounded-md bg-black/30 px-3 py-0.5 text-[10px] text-gray-500">
+            <Lock size={9} aria-hidden="true" />{host}
+          </span>
+        </div>
+        <div className="group/shot relative h-48 overflow-hidden sm:h-60">
+          <AnimatePresence initial={false}>
+            <motion.img key={src} src={src} alt={label} loading="lazy"
+              initial={reduced ? false : { opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
+              transition={{ duration: 0.75, ease: EASE }}
+              className="absolute inset-0 h-full w-full object-cover object-top transition-[object-position] duration-[2400ms] ease-in-out group-hover/shot:object-[50%_32%]" />
+          </AnimatePresence>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 to-transparent" aria-hidden="true" />
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3">
+            <p className="text-[11px] font-medium leading-tight text-white" aria-live="off">{label}</p>
+            <div className="flex items-center gap-0.5">
+              {shots.map(([, l], k) => (
+                <button key={l} type="button" onClick={() => setI(k)} aria-label={`Afficher la capture : ${l}`} aria-current={k === i}
+                  className="flex h-6 w-5 items-center justify-center">
+                  <span className="block h-1.5 rounded-full transition-all duration-300" style={{ width: k === i ? 18 : 6, background: k === i ? color : 'rgba(255,255,255,.35)' }} />
+                </button>
+              ))}
+            </div>
+          </div>
+          {onOpen && (
+            <button type="button" onClick={onOpen} aria-label="Ouvrir le détail du projet et toutes les captures"
+              className="absolute right-2 top-2 rounded-lg bg-black/45 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 focus-visible:opacity-100 group-hover/shot:opacity-100">
+              <Maximize2 size={13} />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ═══ Compteur animé (statistiques) ═══ */
+function CountUp({ value, reduced }) {
+  const m = /^(\d+)(.*)$/.exec(String(value))
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true })
+  const [n, setN] = useState(m && !reduced ? 0 : m ? Number(m[1]) : 0)
+  useEffect(() => {
+    if (!m || reduced || !inView) return
+    const c = animate(0, Number(m[1]), { duration: 1.4, ease: EASE, onUpdate: (v) => setN(Math.round(v)) })
+    return () => c.stop()
+  }, [inView]) // eslint-disable-line react-hooks/exhaustive-deps
+  return <span ref={ref}>{m ? `${n}${m[2]}` : value}</span>
+}
+
 /* ═══ Carte projet ═══ */
 function ProjectCard({ project: p, index, reduced, onOpen }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
   const [hov, setHov] = useState(false)
+  const fine = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer:fine)').matches
+  const tilt = !reduced && fine
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [4, -4]), { stiffness: 200, damping: 22 })
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-5, 5]), { stiffness: 200, damping: 22 })
+  const onMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - r.left) / r.width
+    const y = (e.clientY - r.top) / r.height
+    ref.current?.style.setProperty('--mx', `${x * 100}%`)
+    ref.current?.style.setProperty('--my', `${y * 100}%`)
+    if (tilt) { mx.set(x - 0.5); my.set(y - 0.5) }
+  }
+  const onLeave = () => { setHov(false); mx.set(0); my.set(0) }
   const Icon = p.icon
   const btn = 'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200'
   const ribbonBg = p.kind === 'pfe' ? 'linear-gradient(90deg,#7c3aed,#4f46e5)' : p.cube ? 'linear-gradient(90deg,#6366f1,#8b5cf6,#06b6d4)' : p.kind === 'crypto' ? 'linear-gradient(90deg,#06b6d4,#3b82f6,#6366f1)' : p.kind === 'adas' ? 'linear-gradient(90deg,#14b8a6,#10b981,#22c55e)' : 'linear-gradient(90deg,#3b82f6,#6366f1,#06b6d4)'
@@ -827,18 +943,18 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
     <motion.div ref={ref} initial={{ opacity: 0, y: 44, scale: 0.92, filter: 'blur(10px)' }}
       animate={inView ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' } : {}}
       transition={{ duration: 0.7, delay: (index % 4) * 0.1, ease: BACK }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      onMouseEnter={() => setHov(true)} onMouseMove={onMove} onMouseLeave={onLeave}
       className={`group relative flex h-full flex-col ${p.wide ? 'lg:col-span-2' : ''}`}>
       <div className={`pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br ${p.gradient} blur-3xl transition-opacity duration-500`}
         style={{ opacity: hov && !reduced ? 0.3 : 0 }} aria-hidden="true" />
       <motion.div whileHover={reduced ? {} : { y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}
         className={`relative flex h-full flex-col overflow-hidden rounded-2xl border shadow-2xl transition-colors duration-300 ${p.neon ? 'pj-neon' : ''}`}
-        style={{ '--nc': p.neon, borderColor: hov ? `${p.color}73` : `${p.color}33`, backdropFilter: 'blur(28px)',
+        style={{ '--nc': p.neon, rotateX: tilt ? rx : 0, rotateY: tilt ? ry : 0, transformPerspective: 1000, borderColor: hov ? `${p.color}73` : `${p.color}33`, backdropFilter: 'blur(28px)',
           background: `linear-gradient(145deg,${p.color}${p.wide || p.cube || p.highlight ? '22' : '0d'} 0%,rgba(8,12,32,.95) 55%,rgba(8,10,20,.98) 100%)` }}>
         <motion.div initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ delay: 0.4, duration: 0.9, ease: EASE }}
           style={{ originX: 0.5 }} className={`absolute left-0 right-0 top-0 h-px bg-gradient-to-r ${p.gradient}`} />
         <div className="pointer-events-none absolute inset-0 transition-opacity duration-500" aria-hidden="true"
-          style={{ opacity: hov ? 1 : 0, background: `radial-gradient(ellipse at 50% 0%,${p.color}1a 0%,transparent 65%)` }} />
+          style={{ opacity: hov && !reduced ? 1 : 0, background: `radial-gradient(420px circle at var(--mx,50%) var(--my,0%),${p.color}26 0%,transparent 62%)` }} />
 
         {p.ribbon && (
           <motion.div initial={{ x: -60, opacity: 0 }} animate={inView ? { x: 0, opacity: 1 } : {}} transition={{ delay: 0.45, duration: 0.6, ease: EASE }}
@@ -865,6 +981,8 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
               <p className="text-sm leading-relaxed text-gray-400">{p.description}</p>
             </div>
           </div>
+
+          {p.previews && <BrowserPreview shots={p.previews} color={p.color} demo={p.demo} reduced={reduced} onOpen={p.modal ? () => onOpen(p) : undefined} />}
 
           <div className={`mb-6 grid items-start gap-6 ${p.wide ? 'lg:grid-cols-2' : ''}`}>
             <div className="space-y-5">
@@ -908,7 +1026,7 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
 
           <div className="mt-auto flex flex-wrap gap-2.5">
             {p.code && <motion.a whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} href={p.code} target="_blank" rel="noopener noreferrer" className={`${btn} border border-white/[0.08] bg-white/[0.05] text-white hover:bg-white/[0.09]`}><Github size={16} />Code</motion.a>}
-            {p.demo && <motion.a whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} href={p.demo} target="_blank" rel="noopener noreferrer" className={`${btn} bg-gradient-to-r ${p.gradient} text-white shadow-lg`}><Eye size={16} />Démo Live<ArrowUpRight size={14} /></motion.a>}
+            {p.demo && <motion.a whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} href={p.demo} target="_blank" rel="noopener noreferrer" className={`${btn} pj-btn bg-gradient-to-r ${p.gradient} text-white shadow-lg`}><Eye size={16} />Démo Live<ArrowUpRight size={14} /></motion.a>}
             {p.modal && <motion.button whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => onOpen(p)} className={`${btn} border text-white`} style={{ borderColor: `${p.color}55`, background: `${p.color}26` }}>
               {p.cube ? <Box size={16} /> : <Cpu size={16} />}{p.kind ? 'Architecture' : p.cube ? 'Voir le projet' : 'Voir Démo'}</motion.button>}
           </div>
@@ -933,7 +1051,7 @@ function StatCard({ s, i, reduced }) {
       <motion.div initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.09 + 0.3, duration: 0.9, ease: EASE }}
         style={{ originX: 0.5 }} className={`absolute left-6 right-6 top-0 h-px rounded-full bg-gradient-to-r ${s.g}`} />
       <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl transition-opacity duration-500" style={{ background: `linear-gradient(135deg,${s.gr})`, opacity: hov ? 0.16 : 0.04 }} aria-hidden="true" />
-      <div className={`mb-2 bg-gradient-to-r ${s.g} bg-clip-text text-2xl font-black tabular-nums text-transparent md:text-3xl`}>{s.v}</div>
+      <div className={`mb-2 bg-gradient-to-r ${s.g} bg-clip-text text-2xl font-black tabular-nums text-transparent md:text-3xl`}><CountUp value={s.v} reduced={reduced} /></div>
       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">{s.l}</div>
       <div className="mx-auto mt-3 h-px rounded-full transition-all duration-500" style={{ width: hov ? '65%' : '28%', opacity: hov ? 1 : 0.4, background: `linear-gradient(90deg,${s.gr})` }} />
     </motion.div>
