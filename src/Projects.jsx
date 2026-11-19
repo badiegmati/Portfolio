@@ -1,6 +1,7 @@
-// Projects.jsx v4 — fusion finale + captures (aperçu navigateur animé), spotlight + tilt 3D, compteurs, accessibilité
-// Projects.jsx — fusion finale : design d'origine (cube 3D, néon, rubans, images) + FleetDesk (calendrier animé) + CryptoPredict AI (signal animé) + ADAS-DMS Lite (score de risque animé) + Galerie PFE (filtres rôle + lightbox)
-// Palette: #3b82f6 · #8b5cf6 · #06b6d4 · #6366f1 · #14b8a6 · Animations: transform + opacité · prefers-reduced-motion respecté
+// Projects.jsx v5 — design d'origine conservé, animations des boxes simplifiées et professionnelles
+// Changements : apparition simple (fondu + léger glissement), survol = bordure + ombre + 4px de lévitation (CSS),
+// plus de tilt 3D, spotlight, flou, ressorts (spring), ping, pulsations, scintillement, chips animés.
+// Animations : transform + opacité · prefers-reduced-motion respecté
 
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import {
@@ -10,13 +11,12 @@ import {
   TrendingUp, Target, Coins, Signal,
   ChevronLeft, ChevronRight, Maximize2, UserCog, Users2, UserCircle2,
 } from 'lucide-react'
-import { motion, AnimatePresence, useReducedMotion, useInView, useMotionValue, useSpring, useTransform, animate } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion, useInView, animate } from 'framer-motion'
 import image1 from './assets/image1.png'
 import image3 from './assets/image4.png'
 import cryptoHome from './assets/crypto-home.png'
 import cryptoDashboard from './assets/crypto-dashboard.png'
 
-// Captures ADAS-DMS Lite — interface v2 (place les fichiers dans src/assets/adas-v2/)
 import adasLogin from './assets/adas-v2/login.webp'
 import adasGestDash from './assets/adas-v2/gestionnaire-dashboard.webp'
 import adasGestDetail from './assets/adas-v2/gestionnaire-detail.webp'
@@ -27,7 +27,6 @@ import adasCondHistorique from './assets/adas-v2/conducteur-historique.webp'
 import adasAdminGest from './assets/adas-v2/admin-gestionnaires.webp'
 import adasMobile from './assets/adas-v2/mobile-gestionnaire.webp'
 
-// Captures d'écran du projet PFE (place les fichiers dans src/assets/pfe/)
 import alerteConducteur from './assets/pfe/alerte conducteur.jpeg'
 import carteGPS from './assets/pfe/Carte GPS.png'
 import dashboardAdministrateur from './assets/pfe/Dashboard Administrateur.jpeg'
@@ -45,19 +44,14 @@ const STYLES = `
   @keyframes pj-grad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
   @keyframes pj-spin{to{transform:rotate(360deg)}}
   @keyframes pj-spin-r{to{transform:rotate(-360deg)}}
-  @keyframes pj-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   @keyframes pj-cube{from{transform:rotateX(-20deg) rotateY(0)}to{transform:rotateX(-20deg) rotateY(360deg)}}
-  @keyframes pj-neon{0%,100%{box-shadow:0 0 18px var(--nc,rgba(99,102,241,.18)),0 0 36px rgba(139,92,246,.10)}50%{box-shadow:0 0 32px var(--nc,rgba(99,102,241,.32)),0 0 64px rgba(139,92,246,.18)}}
-  @keyframes pj-shine{from{transform:translateX(-130%) skewX(-20deg)}to{transform:translateX(330%) skewX(-20deg)}}
-  .pj-btn{position:relative;overflow:hidden}
-  .pj-btn::after{content:'';position:absolute;top:0;bottom:0;left:0;width:36%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);transform:translateX(-130%) skewX(-20deg);pointer-events:none}
-  .pj-btn:hover::after{animation:pj-shine .9s ease}
   #projects a:focus-visible,#projects button:focus-visible{outline:2px solid #22d3ee;outline-offset:2px}
   .pj-gt{background-size:300% 100%;animation:pj-grad 6s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
   .pj-spin{animation:pj-spin 18s linear infinite}.pj-spin-r{animation:pj-spin-r 18s linear infinite}
-  .pj-neon{animation:pj-neon 3s ease-in-out infinite}
-  .rk-scene{perspective:900px}.rk-rig{animation:pj-bob 4s ease-in-out infinite}
-  .rk-cube{position:relative;width:var(--s);height:var(--s);transform-style:preserve-3d;animation:pj-cube 9s linear infinite}
+  .pj-box{transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+  .pj-box:hover{transform:translateY(-4px);border-color:var(--hc)!important;box-shadow:0 24px 60px var(--gl)!important}
+  .rk-scene{perspective:900px}
+  .rk-cube{position:relative;width:var(--s);height:var(--s);transform-style:preserve-3d;animation:pj-cube 12s linear infinite}
   .rk-f{position:absolute;inset:0;border-radius:calc(var(--s)/10);box-shadow:inset 0 0 0 calc(var(--s)/12) rgba(10,10,20,.55),inset 0 0 0 calc(var(--s)/11) rgba(255,255,255,.09)}
   .rk-f1{background:#e63946;transform:translateZ(calc(var(--s)/2))}
   .rk-f2{background:#f4a300;transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
@@ -65,34 +59,32 @@ const STYLES = `
   .rk-f4{background:#16a34a;transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
   .rk-f5{background:#f8fafc;transform:rotateX(90deg) translateZ(calc(var(--s)/2))}
   .rk-f6{background:#facc15;transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
-  @media (prefers-reduced-motion:reduce){.pj-btn:hover::after{animation:none!important}.pj-gt,.pj-spin,.pj-spin-r,.pj-neon,.rk-rig,.rk-cube{animation:none!important}}
+  @media (prefers-reduced-motion:reduce){.pj-gt,.pj-spin,.pj-spin-r,.rk-cube{animation:none!important}.pj-box,.pj-box:hover{transition:none;transform:none}}
 `
 function StyleInject() {
   useEffect(() => {
-    if (document.getElementById('pj-pro-v4')) return
+    if (document.getElementById('pj-pro-v5')) return
     const el = document.createElement('style')
-    el.id = 'pj-pro-v4'
+    el.id = 'pj-pro-v5'
     el.textContent = STYLES
     document.head.appendChild(el)
-    return () => document.getElementById('pj-pro-v4')?.remove()
+    return () => document.getElementById('pj-pro-v5')?.remove()
   }, [])
   return null
 }
 
 const EASE = [0.16, 1, 0.3, 1]
-const BACK = [0.34, 1.56, 0.64, 1]
 const fadeUp = {
-  hidden: { opacity: 0, y: 28, filter: 'blur(8px)' },
-  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.65, ease: EASE } },
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
 }
-const stagger = (d = 0, c = 0.1) => ({ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: c, delayChildren: d } } })
+const stagger = (d = 0, c = 0.08) => ({ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: c, delayChildren: d } } })
 
-/* Cube de Rubik 3D (taille en px) */
 function Cube({ s = 64 }) {
   return (
-    <div className="rk-scene"><div className="rk-rig"><div className="rk-cube" style={{ '--s': `${s}px` }}>
+    <div className="rk-scene"><div className="rk-cube" style={{ '--s': `${s}px` }}>
       {[1, 2, 3, 4, 5, 6].map((n) => <div key={n} className={`rk-f rk-f${n}`} />)}
-    </div></div></div>
+    </div></div>
   )
 }
 
@@ -141,7 +133,7 @@ const PROJECTS = [
     },
   },
   {
-    id: 7, kind: 'fleet', highlight: true, featured: true, neon: 'rgba(59,130,246,.30)', icon: Car,
+    id: 7, kind: 'fleet', highlight: true, featured: true, icon: Car,
     title: 'FleetDesk — SaaS Multi-Agences de Gestion de Flotte',
     description: "Plateforme SaaS de location de véhicules : isolation stricte par société (RLS), 4 rôles appliqués par la base, anti double-réservation garanti par PostgreSQL, facturation PDF automatique avec relances, IA optionnelle (Gemini). Déployée sur Vercel + Render + Supabase, sans Docker.",
     tech: ['Next.js 16', 'React 19', 'TypeScript', 'Tailwind 4', 'Framer Motion', 'Supabase', 'PostgreSQL', 'RLS', 'Edge Functions', 'Node/Express', 'PDFKit', 'GitHub Actions', 'Vercel', 'Render', 'Gemini'],
@@ -169,7 +161,7 @@ const PROJECTS = [
     },
   },
   {
-    id: 3, cube: true, featured: true, neon: 'rgba(99,102,241,.30)', icon: Box,
+    id: 3, cube: true, featured: true, icon: Box,
     title: "Rubik's Cube AR — Contrôle Gestuel",
     description: "Application de réalité augmentée Python : un Rubik's Cube 3×3 flotte devant la caméra et se manipule à la main grâce à MediaPipe Hands. Pincement pour tourner une face, poing pour orbiter, pouce levé pour mélanger.",
     tech: ['Python', 'OpenCV', 'MediaPipe', 'NumPy', 'Kociemba', 'Vision par ordi'],
@@ -195,7 +187,7 @@ const PROJECTS = [
     },
   },
   {
-    id: 8, kind: 'crypto', highlight: true, featured: false, neon: 'rgba(6,182,212,.30)', icon: TrendingUp,
+    id: 8, kind: 'crypto', highlight: true, featured: false, icon: TrendingUp,
     title: 'CryptoPredict AI — Prédiction de Prix Crypto Multi-Paires',
     description: "Plateforme de prédiction de prix crypto en temps réel : recherche libre parmi 511 paires Binance USDT actives, ensemble de 3 modèles ML (RandomForest, XGBoost, LightGBM) sur 4 horizons temporels, signal ACHAT/VENTE/ATTENTE avec score de confiance calibré. Edge statistique validé par walk-forward et réplication hors échantillon.",
     tech: ['Python', 'FastAPI', 'SQLAlchemy', 'scikit-learn', 'XGBoost', 'LightGBM', 'pandas', 'Next.js 14', 'TypeScript', 'TailwindCSS', 'Recharts', 'PostgreSQL', 'Supabase', 'Vercel', 'Render'],
@@ -224,13 +216,13 @@ const PROJECTS = [
     },
   },
   {
-    id: 9, kind: 'adas', featured: false, neon: 'rgba(20,184,166,.28)', icon: Eye,
+    id: 9, kind: 'adas', featured: false, icon: Eye,
     title: 'ADAS-DMS Lite — Supervision du Comportement du Conducteur',
     description: "Projet académique : supervision du comportement du conducteur par vision par ordinateur. Détection de la somnolence et du bâillement par webcam (EAR/MAR), détection du téléphone au volant (YOLOv8n), score de risque calculé par décroissance exponentielle, et trois tableaux de bord par rôle (admin, gestionnaire, conducteur). Interface v2 repensée en Interaction Homme-Machine : accessibilité WCAG 2.2, animations sobres, évaluation heuristique et test utilisateur.",
     tech: ['Python', 'OpenCV', 'MediaPipe', 'YOLOv8n', 'Spring Boot 3', 'Java 17', 'Supabase', 'PostgreSQL', 'React 18', 'Vite', 'TailwindCSS', 'Framer Motion', 'Chart.js', 'Leaflet', 'Render', 'Vercel'],
     features: [
       'Détection EAR/MAR (somnolence, bâillement) via webcam',
-      "Détection du téléphone au volant (YOLOv8n)",
+      'Détection du téléphone au volant (YOLOv8n)',
       'Score de risque par décroissance exponentielle',
       'Authentification JWT (cookie httpOnly) et 3 rôles distincts',
       'Interface accessible : niveau de risque en texte + icône + couleur, navigation clavier, animations réduites sur demande',
@@ -239,7 +231,7 @@ const PROJECTS = [
     chips: [[Shield, 'Isolation par gestionnaire', '#14b8a6'], [Lock, 'JWT httpOnly', '#06b6d4'], [Eye, 'Détection webcam', '#10b981'], [Gauge, 'Score exponentiel', '#22c55e'], [Layers, 'Design accessible WCAG 2.2', '#2dd4bf']],
     gradient: 'from-teal-500 via-emerald-500 to-green-600', color: '#14b8a6',
     ribbon: 'Projet académique', status: 'Déployé · En ligne',
-    demo: 'https://adas-dms-lite-9d16.vercel.app',code: 'https://github.com/badiegmati/ADAS-DMS-Lite',
+    demo: 'https://adas-dms-lite-9d16.vercel.app', code: 'https://github.com/badiegmati/ADAS-DMS-Lite',
     previews: [[adasGestDash, 'Tableau de bord gestionnaire'], [adasGestDetail, 'Détail d’un conducteur'], [adasCondDash, 'Score de risque conducteur'], [adasGestMessages, 'Messagerie']],
     modal: {
       sub: 'Python · MediaPipe · YOLOv8n · Spring Boot 3 · React 18 · Supabase',
@@ -334,7 +326,7 @@ const ROWS = [
   { p: '202 TN 7733', b: [[2, 7, 'Trabelsi', '#8b5cf6']], x: [5, 9] },
   { p: '301 TN 6610', b: [[4, 8, 'Rossi', '#06b6d4'], [10, 14, 'Gharbi', '#3b82f6']] },
 ]
-function Timeline({ inView, reduced }) {
+function Timeline({ reduced }) {
   const cyc = { duration: 4.8, repeat: Infinity, repeatDelay: 0.8, delay: 1.8 }
   return (
     <div>
@@ -351,9 +343,8 @@ function Timeline({ inView, reduced }) {
             <span className="flex items-center px-2 font-mono text-[10px] text-gray-400">{r.p}</span>
             <div className="relative h-10">
               {r.b.map(([s, e, n, c], i) => (
-                <motion.div key={i} initial={reduced ? false : { opacity: 0, scaleX: 0 }}
-                  animate={inView || reduced ? { opacity: 1, scaleX: 1 } : {}}
-                  transition={{ delay: 0.25 + ri * 0.18 + i * 0.2, duration: 0.55, ease: EASE }}
+                <motion.div key={i} initial={reduced ? false : { opacity: 0, scaleX: 0 }} animate={{ opacity: 1, scaleX: 1 }}
+                  transition={{ delay: 0.2 + ri * 0.15 + i * 0.15, duration: 0.5, ease: EASE }}
                   className="absolute bottom-1.5 top-1.5 flex items-center overflow-hidden whitespace-nowrap rounded-md px-1.5 text-[10px] font-semibold text-white shadow-md"
                   style={{ left: pct(s - 1), width: pct(e - s + 1), background: c, originX: 0 }}>{n}</motion.div>
               ))}
@@ -361,11 +352,9 @@ function Timeline({ inView, reduced }) {
                 <motion.div className="absolute bottom-1 top-1 z-[5] overflow-hidden whitespace-nowrap rounded-md border-[1.5px] border-dashed text-[10px] font-bold"
                   style={{ left: pct(r.x[0] - 1), width: pct(r.x[1] - r.x[0] + 1), borderColor: '#f59e0b', color: '#fbbf24', background: 'repeating-linear-gradient(45deg,rgba(245,158,11,.1),rgba(245,158,11,.1) 6px,rgba(245,158,11,.22) 6px,rgba(245,158,11,.22) 12px)' }}
                   initial={{ opacity: reduced ? 1 : 0 }}
-                  animate={reduced ? {} : inView ? { opacity: [0, 1, 1, 0] } : {}}
+                  animate={reduced ? {} : { opacity: [0, 1, 1, 0] }}
                   transition={{ ...cyc, times: [0, 0.12, 0.85, 1] }}>
-                  <motion.span className="flex h-full items-center px-1.5"
-                    animate={reduced || !inView ? {} : { x: [0, 0, -6, 6, -4, 4, 0, 0] }}
-                    transition={{ ...cyc, times: [0, 0.14, 0.18, 0.22, 0.26, 0.3, 0.34, 1] }}>Refusé · 23P01</motion.span>
+                  <span className="flex h-full items-center px-1.5">Refusé · 23P01</span>
                 </motion.div>
               )}
             </div>
@@ -377,95 +366,100 @@ function Timeline({ inView, reduced }) {
   )
 }
 
-/* ═══ Démo signal animée (CryptoPredict AI) ═══ */
-const HORIZONS = ['15m', '1h', '1d', '7d']
-const SIGNALS = [
-  { label: 'ACHAT', color: '#10b981', conf: 0.62 },
-  { label: 'ATTENTE', color: '#f59e0b', conf: 0.38 },
-  { label: 'VENTE', color: '#ef4444', conf: 0.54 },
-  { label: 'ATTENTE', color: '#f59e0b', conf: 0.41 },
-]
-function SignalTicker({ inView, reduced }) {
+/* ═══ Démos à états cycliques (signal crypto / score de risque) ═══ */
+const SIGNAL_DEMO = {
+  icon: Coins, iconCls: 'text-cyan-400', name: 'DOGEUSDT', tabs: ['15m', '1h', '1d', '7d'], tabColor: ['rgba(6,182,212,.18)', '#22d3ee'],
+  valueLabel: 'Score de confiance', sub: 'Signal ensemble (RF + XGBoost + LightGBM)',
+  label: "Démonstration animée d'un signal de prédiction avec score de confiance",
+  caption: 'Simulation illustrative du cycle de signal (le site en production affiche les vraies prédictions calculées par les modèles).',
+  items: [
+    { label: 'ACHAT', color: '#10b981', v: 62, d: '62%' },
+    { label: 'ATTENTE', color: '#f59e0b', v: 38, d: '38%' },
+    { label: 'VENTE', color: '#ef4444', v: 54, d: '54%' },
+    { label: 'ATTENTE', color: '#f59e0b', v: 41, d: '41%' },
+  ],
+}
+const RISK_DEMO = {
+  icon: Eye, iconCls: 'text-teal-400', name: 'Conducteur C10', tag: 'webcam active', valueLabel: 'Score de risque',
+  label: 'Démonstration animée du score de risque et des alertes de supervision',
+  caption: "Simulation illustrative du cycle d'alerte (le score réel décroît exponentiellement après chaque événement détecté par le client Python).",
+  items: [
+    { label: 'RAS — conduite normale', color: '#10b981', v: 94, d: '94/100' },
+    { label: 'Bâillement détecté', color: '#f59e0b', v: 76, d: '76/100' },
+    { label: 'Somnolence (EAR bas)', color: '#ef4444', v: 52, d: '52/100' },
+    { label: 'Téléphone au volant', color: '#ef4444', v: 61, d: '61/100' },
+  ],
+}
+function LiveDemo({ cfg, reduced }) {
   const [idx, setIdx] = useState(0)
   useEffect(() => {
     if (reduced) return
-    const t = setInterval(() => setIdx((i) => (i + 1) % SIGNALS.length), 2600)
+    const t = setInterval(() => setIdx((i) => (i + 1) % cfg.items.length), 2600)
     return () => clearInterval(t)
-  }, [reduced])
-  const s = SIGNALS[idx]
+  }, [reduced, cfg.items.length])
+  const s = cfg.items[idx]
+  const I = cfg.icon
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.07] p-5" style={{ background: 'rgba(4,8,22,.72)' }}
-      role="img" aria-label="Demonstration animee d'un signal de prediction avec score de confiance">
+    <div className="overflow-hidden rounded-xl border border-white/[0.07] p-5" style={{ background: 'rgba(4,8,22,.72)' }} role="img" aria-label={cfg.label}>
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Coins size={15} className="text-cyan-400" />
-          <span className="font-mono text-sm font-bold text-white">DOGEUSDT</span>
-        </div>
-        <div className="flex gap-1">
-          {HORIZONS.map((h, i) => (
-            <span key={h} className="rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors"
-              style={{ background: i === idx % 4 ? 'rgba(6,182,212,.18)' : 'rgba(255,255,255,.04)', color: i === idx % 4 ? '#22d3ee' : '#6b7280' }}>{h}</span>
-          ))}
-        </div>
+        <div className="flex items-center gap-2"><I size={15} className={cfg.iconCls} /><span className="font-mono text-sm font-bold text-white">{cfg.name}</span></div>
+        {cfg.tabs ? (
+          <div className="flex gap-1">
+            {cfg.tabs.map((h, i) => (
+              <span key={h} className="rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors"
+                style={{ background: i === idx % cfg.tabs.length ? cfg.tabColor[0] : 'rgba(255,255,255,.04)', color: i === idx % cfg.tabs.length ? cfg.tabColor[1] : '#6b7280' }}>{h}</span>
+            ))}
+          </div>
+        ) : <span className="rounded-md px-2 py-0.5 text-[10px] font-semibold" style={{ background: 'rgba(20,184,166,.15)', color: '#2dd4bf' }}>{cfg.tag}</span>}
       </div>
       <AnimatePresence mode="wait">
-        <motion.div key={idx} initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
+        <motion.div key={idx} initial={reduced ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}
           className="mb-3 flex items-center gap-3">
           <span className="rounded-lg px-3 py-1.5 text-sm font-black tracking-wide" style={{ background: `${s.color}22`, color: s.color, border: `1px solid ${s.color}55` }}>{s.label}</span>
-          <span className="text-xs text-gray-500">Signal ensemble (RF + XGBoost + LightGBM)</span>
+          {cfg.sub && <span className="text-xs text-gray-500">{cfg.sub}</span>}
         </motion.div>
       </AnimatePresence>
       <div className="mb-1.5 flex items-center justify-between text-[11px] text-gray-500">
-        <span>Score de confiance</span><span className="font-mono font-semibold text-gray-300">{Math.round(s.conf * 100)}%</span>
+        <span>{cfg.valueLabel}</span><span className="font-mono font-semibold text-gray-300">{s.d}</span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
-        <motion.div className="h-full rounded-full" style={{ background: s.color }}
-          initial={reduced ? false : { width: '0%' }} animate={{ width: `${s.conf * 100}%` }} transition={{ duration: 0.9, ease: EASE }} />
+        <div className="h-full w-full origin-left rounded-full transition-transform duration-700 ease-out" style={{ background: s.color, transform: `scaleX(${s.v / 100})` }} />
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-gray-500">Simulation illustrative du cycle de signal (le site en production affiche les vraies predictions calculees par les modeles).</p>
+      <p className="mt-3 text-[11px] leading-relaxed text-gray-500">{cfg.caption}</p>
     </div>
   )
 }
 
-/* ═══ Démo score de risque animée (ADAS-DMS Lite) ═══ */
-const ALERTES_ADAS = [
-  { label: 'RAS — conduite normale', color: '#10b981', score: 94 },
-  { label: 'Bâillement détecté', color: '#f59e0b', score: 76 },
-  { label: 'Somnolence (EAR bas)', color: '#ef4444', score: 52 },
-  { label: 'Téléphone au volant', color: '#ef4444', score: 61 },
-]
-function RiskScoreDemo({ inView, reduced }) {
-  const [idx, setIdx] = useState(0)
-  useEffect(() => {
-    if (reduced) return
-    const t = setInterval(() => setIdx((i) => (i + 1) % ALERTES_ADAS.length), 2600)
-    return () => clearInterval(t)
-  }, [reduced])
-  const a = ALERTES_ADAS[idx]
+/* ═══ Bloc « points forts + KPIs + démo » du modal ═══ */
+function Showcase({ project, reduced }) {
+  const demo = project.kind === 'fleet'
+    ? { t: 'Calendrier de réservation en direct', I: CalendarRange, el: <Timeline reduced={reduced} /> }
+    : project.kind === 'crypto'
+      ? { t: 'Démo signal en direct', I: Signal, el: <LiveDemo cfg={SIGNAL_DEMO} reduced={reduced} /> }
+      : { t: 'Supervision en direct', I: Activity, el: <LiveDemo cfg={RISK_DEMO} reduced={reduced} /> }
+  const Head = ({ I, children }) => <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white"><I size={16} style={{ color: project.color }} />{children}</div>
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.07] p-5" style={{ background: 'rgba(4,8,22,.72)' }}
-      role="img" aria-label="Démonstration animée du score de risque et des alertes de supervision">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Eye size={15} className="text-teal-400" />
-          <span className="font-mono text-sm font-bold text-white">Conducteur C10</span>
+    <div className="space-y-6">
+      <div>
+        <Head I={Zap}>Points forts</Head>
+        <div className="flex flex-wrap gap-2">
+          {project.chips.map(([I, l, c]) => (
+            <div key={l} className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium" style={{ borderColor: `${c}30`, background: `${c}0d`, color: c }}><I size={13} />{l}</div>
+          ))}
         </div>
-        <span className="rounded-md px-2 py-0.5 text-[10px] font-semibold" style={{ background: 'rgba(20,184,166,.15)', color: '#2dd4bf' }}>webcam active</span>
       </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={idx} initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}
-          className="mb-3 flex items-center gap-3">
-          <span className="rounded-lg px-3 py-1.5 text-sm font-black tracking-wide" style={{ background: `${a.color}22`, color: a.color, border: `1px solid ${a.color}55` }}>{a.label}</span>
-        </motion.div>
-      </AnimatePresence>
-      <div className="mb-1.5 flex items-center justify-between text-[11px] text-gray-500">
-        <span>Score de risque</span><span className="font-mono font-semibold text-gray-300">{a.score}/100</span>
+      <div>
+        <Head I={Gauge}>Indicateurs clés</Head>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {project.kpis.map(([v, l]) => (
+            <div key={l} className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
+              <div className="text-xl font-black tabular-nums" style={{ color: project.color }}>{v}</div>
+              <div className="text-[11px] text-gray-500">{l}</div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
-        <motion.div className="h-full rounded-full" style={{ background: a.color }}
-          initial={reduced ? false : { width: '0%' }} animate={{ width: `${a.score}%` }} transition={{ duration: 0.9, ease: EASE }} />
-      </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-gray-500">Simulation illustrative du cycle d'alerte (le score réel décroît exponentiellement après chaque événement détecté par le client Python).</p>
+      <div><Head I={demo.I}>{demo.t}</Head>{demo.el}</div>
     </div>
   )
 }
@@ -488,17 +482,16 @@ function ScreenshotGallery({ screenshots, reduced }) {
   useEffect(() => {
     if (lightbox === null) return
     const k = (e) => {
-      if (e.key === 'Escape') setLightbox(null)
+      if (e.key === 'Escape') { e.stopPropagation(); setLightbox(null) }
       if (e.key === 'ArrowRight') setLightbox((i) => (i + 1) % filtered.length)
       if (e.key === 'ArrowLeft') setLightbox((i) => (i - 1 + filtered.length) % filtered.length)
     }
-    window.addEventListener('keydown', k)
-    return () => window.removeEventListener('keydown', k)
+    window.addEventListener('keydown', k, true)
+    return () => window.removeEventListener('keydown', k, true)
   }, [lightbox, filtered.length])
 
   return (
     <div>
-      {/* Filtres par rôle */}
       <div className="mb-4 flex flex-wrap gap-1.5" role="group" aria-label="Filtrer les captures par rôle">
         {PFE_ROLES.map((r) => {
           const count = r.k === 'tous' ? screenshots.length : screenshots.filter((s) => s[2] === r.k).length
@@ -510,7 +503,7 @@ function ScreenshotGallery({ screenshots, reduced }) {
               {cat === r.k && (
                 <motion.div layoutId="pfe-role-filter" className="absolute inset-0"
                   style={{ background: `linear-gradient(90deg,${r.color}dd,${r.color}99)` }}
-                  transition={{ type: 'spring', stiffness: 340, damping: 28 }} />
+                  transition={{ type: 'spring', stiffness: 400, damping: 34 }} />
               )}
               <span className="relative z-10 flex items-center gap-1.5">
                 <r.icon size={13} />{r.l}
@@ -521,68 +514,44 @@ function ScreenshotGallery({ screenshots, reduced }) {
         })}
       </div>
 
-      {/* Grille de vignettes */}
-      <motion.div layout className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <AnimatePresence mode="popLayout">
-          {filtered.map(([src, label, c], i) => (
-            <motion.button key={src} layout type="button" onClick={() => setLightbox(i)}
-              initial={{ opacity: 0, y: 14, scale: 0.92 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ delay: reduced ? 0 : i * 0.04, duration: 0.4, ease: EASE }}
-              whileHover={reduced ? {} : { y: -4, scale: 1.02 }}
-              className="group relative overflow-hidden rounded-xl border text-left"
-              style={{ borderColor: `${roleColor(c)}35`, boxShadow: `0 8px 24px ${roleColor(c)}14` }}>
-              <img src={src} alt={label} loading="lazy"
-                className="h-32 w-full object-cover object-top transition-transform duration-500 group-hover:scale-110 sm:h-36" />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-85 transition-opacity duration-300 group-hover:opacity-95" />
-              <div className="absolute inset-x-0 bottom-0 p-2">
-                <span className="mb-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
-                  style={{ background: `${roleColor(c)}2a`, color: roleColor(c) }}>
-                  {PFE_ROLES.find((r) => r.k === c)?.l}
-                </span>
-                <p className="text-[11px] font-medium leading-tight text-white">{label}</p>
-              </div>
-              <div className="absolute right-1.5 top-1.5 rounded-lg bg-black/40 p-1 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
-                <Maximize2 size={12} className="text-white" />
-              </div>
-            </motion.button>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {filtered.map(([src, label, c], i) => (
+          <motion.button key={src} type="button" onClick={() => setLightbox(i)}
+            initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: reduced ? 0 : i * 0.02 }}
+            className="group relative overflow-hidden rounded-xl border text-left transition-shadow duration-300 hover:shadow-lg"
+            style={{ borderColor: `${roleColor(c)}35` }}>
+            <img src={src} alt={label} loading="lazy" className="h-32 w-full object-cover object-top sm:h-36" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-2">
+              <span className="mb-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+                style={{ background: `${roleColor(c)}2a`, color: roleColor(c) }}>{PFE_ROLES.find((r) => r.k === c)?.l}</span>
+              <p className="text-[11px] font-medium leading-tight text-white">{label}</p>
+            </div>
+            <div className="absolute right-1.5 top-1.5 rounded-lg bg-black/40 p-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <Maximize2 size={12} className="text-white" />
+            </div>
+          </motion.button>
+        ))}
+      </div>
 
-      {/* Lightbox plein écran */}
       <AnimatePresence>
         {lightbox !== null && filtered[lightbox] && (
-          <motion.div role="dialog" aria-modal="true" aria-label="Capture en plein écran" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4 backdrop-blur-2xl"
-            onClick={() => setLightbox(null)}>
-            <button onClick={() => setLightbox(null)} aria-label="Fermer"
-              className="absolute right-5 top-5 rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/10">
-              <X size={20} />
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + filtered.length) % filtered.length) }}
-              aria-label="Précédent"
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/15 md:left-6">
-              <ChevronLeft size={22} />
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % filtered.length) }}
-              aria-label="Suivant"
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/15 md:right-6">
-              <ChevronRight size={22} />
-            </button>
-            <motion.div key={lightbox} initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.25, ease: EASE }} onClick={(e) => e.stopPropagation()}
-              className="flex max-h-[88vh] max-w-4xl flex-col items-center gap-4">
-              <img src={filtered[lightbox][0]} alt={filtered[lightbox][1]}
-                className="max-h-[75vh] rounded-xl border border-white/10 object-contain shadow-2xl" />
+          <motion.div role="dialog" aria-modal="true" aria-label="Capture en plein écran" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-4" onClick={() => setLightbox(null)}>
+            <button onClick={() => setLightbox(null)} aria-label="Fermer" className="absolute right-5 top-5 rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/10"><X size={20} /></button>
+            <button onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + filtered.length) % filtered.length) }} aria-label="Précédent"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/15 md:left-6"><ChevronLeft size={22} /></button>
+            <button onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % filtered.length) }} aria-label="Suivant"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/15 md:right-6"><ChevronRight size={22} /></button>
+            <div onClick={(e) => e.stopPropagation()} className="flex max-h-[88vh] max-w-4xl flex-col items-center gap-4">
+              <img src={filtered[lightbox][0]} alt={filtered[lightbox][1]} className="max-h-[75vh] rounded-xl border border-white/10 object-contain shadow-2xl" />
               <div className="flex flex-wrap items-center justify-center gap-3 text-center">
                 <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
-                  style={{ background: `${roleColor(filtered[lightbox][2])}2a`, color: roleColor(filtered[lightbox][2]) }}>
-                  {PFE_ROLES.find((r) => r.k === filtered[lightbox][2])?.l}
-                </span>
+                  style={{ background: `${roleColor(filtered[lightbox][2])}2a`, color: roleColor(filtered[lightbox][2]) }}>{PFE_ROLES.find((r) => r.k === filtered[lightbox][2])?.l}</span>
                 <p className="text-sm font-medium text-white">{filtered[lightbox][1]}</p>
                 <span className="font-mono text-xs text-gray-500">{lightbox + 1}/{filtered.length}</span>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -590,7 +559,7 @@ function ScreenshotGallery({ screenshots, reduced }) {
   )
 }
 
-/* ═══ Modal détaillé (piloté par les données) ═══ */
+/* ═══ Modal détaillé ═══ */
 function DetailModal({ project, onClose, reduced }) {
   const m = project?.modal
   const closeRef = useRef(null)
@@ -598,27 +567,22 @@ function DetailModal({ project, onClose, reduced }) {
     if (!project) return
     const prev = document.activeElement
     const t = setTimeout(() => closeRef.current?.focus(), 80)
-    return () => { clearTimeout(t); prev?.focus?.() }
-  }, [project])
-  useEffect(() => {
-    if (!project) return
     document.body.style.overflow = 'hidden'
     const k = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', k)
-    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', k) }
+    return () => { clearTimeout(t); prev?.focus?.(); document.body.style.overflow = ''; window.removeEventListener('keydown', k) }
   }, [project, onClose])
 
   const act = 'flex min-w-[150px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.05] px-5 py-3 text-sm font-medium text-white transition hover:bg-white/[0.09]'
   return (
     <AnimatePresence>
       {project && m && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-xl" onClick={onClose}>
           <motion.div role="dialog" aria-modal="true" aria-label={project.title}
-            initial={{ scale: 0.93, opacity: 0, y: 28 }} animate={{ scale: 1, opacity: 1, y: 0, transition: { type: 'spring', damping: 26, stiffness: 300 } }}
-            exit={{ scale: 0.96, opacity: 0, y: 12, transition: { duration: 0.18 } }}
+            initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.25, ease: EASE }}
             className="relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border shadow-2xl"
-            style={{ borderColor: `${project.color}45`, boxShadow: `0 40px 120px ${project.color}2e`, backdropFilter: 'blur(32px)',
+            style={{ borderColor: `${project.color}45`, boxShadow: `0 40px 120px ${project.color}2e`,
               background: `linear-gradient(145deg,${project.color}16 0%,rgba(13,20,42,.97) 45%,rgba(8,10,20,.99) 100%)` }}
             onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b p-6 backdrop-blur-2xl" style={{ borderColor: `${project.color}30`, background: 'rgba(6,10,26,.94)' }}>
@@ -632,15 +596,15 @@ function DetailModal({ project, onClose, reduced }) {
             <div className="space-y-9 p-8">
               {m.hero === 'cube' ? (
                 <div className="grid items-center gap-8 md:grid-cols-2">
-                  <motion.div initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15, duration: 0.8, ease: BACK }} className="flex flex-col items-center gap-6">
+                  <div className="flex flex-col items-center gap-6">
                     <div className="relative flex h-44 items-center justify-center">
                       <div className="absolute h-28 w-28 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle,rgba(99,102,241,.4),rgba(6,182,212,.2),transparent)' }} />
                       <Cube s={110} />
                     </div>
                     <div className="grid w-full max-w-[220px] grid-cols-3 gap-2">
-                      {FACES.map(([c, n]) => <div key={n} className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] px-2 py-1.5" style={{ background: 'rgba(255,255,255,.03)' }}><div className="h-3 w-3 flex-shrink-0 rounded-sm" style={{ background: c, boxShadow: `0 0 6px ${c}60` }} /><span className="text-[10px] text-gray-400">{n}</span></div>)}
+                      {FACES.map(([c, n]) => <div key={n} className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] px-2 py-1.5" style={{ background: 'rgba(255,255,255,.03)' }}><div className="h-3 w-3 flex-shrink-0 rounded-sm" style={{ background: c }} /><span className="text-[10px] text-gray-400">{n}</span></div>)}
                     </div>
-                  </motion.div>
+                  </div>
                   <div className="space-y-5">
                     <p className="text-sm leading-relaxed text-gray-300">{m.intro}</p>
                     {m.keys && (
@@ -655,146 +619,20 @@ function DetailModal({ project, onClose, reduced }) {
 
               {m.screenshots && (
                 <div>
-                  <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
-                    <Camera size={16} style={{ color: project.color }} />Captures d'écran de l'application
-                  </div>
+                  <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white"><Camera size={16} style={{ color: project.color }} />Captures d'écran de l'application</div>
                   <ScreenshotGallery screenshots={m.screenshots} reduced={reduced} />
                 </div>
               )}
 
-              {project.kind === 'fleet' && (
-                <div className="space-y-6">
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Zap size={16} style={{ color: project.color }} />Points forts
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {project.chips.map(([I, l, c]) => (
-                        <motion.div key={l} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-                          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
-                          style={{ borderColor: `${c}30`, background: `${c}0d`, color: c }}>
-                          <I size={13} />{l}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Gauge size={16} style={{ color: project.color }} />Indicateurs clés
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                      {project.kpis.map(([v, l], i) => (
-                        <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 200 }}
-                          className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
-                          <div className="text-xl font-black tabular-nums" style={{ color: project.color }}>{v}</div>
-                          <div className="text-[11px] text-gray-500">{l}</div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <CalendarRange size={16} style={{ color: project.color }} />Calendrier de réservation en direct
-                    </div>
-                    <Timeline inView reduced={reduced} />
-                  </div>
-                </div>
-              )}
-
-              {project.kind === 'crypto' && (
-                <div className="space-y-6">
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Zap size={16} style={{ color: project.color }} />Points forts
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {project.chips.map(([I, l, c]) => (
-                        <motion.div key={l} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-                          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
-                          style={{ borderColor: `${c}30`, background: `${c}0d`, color: c }}>
-                          <I size={13} />{l}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Gauge size={16} style={{ color: project.color }} />Indicateurs clés
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                      {project.kpis.map(([v, l], i) => (
-                        <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 200 }}
-                          className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
-                          <div className="text-xl font-black tabular-nums" style={{ color: project.color }}>{v}</div>
-                          <div className="text-[11px] text-gray-500">{l}</div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Signal size={16} style={{ color: project.color }} />Démo signal en direct
-                    </div>
-                    <SignalTicker inView reduced={reduced} />
-                  </div>
-                </div>
-              )}
-
-              {project.kind === 'adas' && (
-                <div className="space-y-6">
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Zap size={16} style={{ color: project.color }} />Points forts
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {project.chips.map(([I, l, c]) => (
-                        <motion.div key={l} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-                          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium"
-                          style={{ borderColor: `${c}30`, background: `${c}0d`, color: c }}>
-                          <I size={13} />{l}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Gauge size={16} style={{ color: project.color }} />Indicateurs clés
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                      {project.kpis.map(([v, l], i) => (
-                        <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 200 }}
-                          className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
-                          <div className="text-xl font-black tabular-nums" style={{ color: project.color }}>{v}</div>
-                          <div className="text-[11px] text-gray-500">{l}</div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                      <Activity size={16} style={{ color: project.color }} />Supervision en direct
-                    </div>
-                    <RiskScoreDemo inView reduced={reduced} />
-                  </div>
-                </div>
-              )}
+              {['fleet', 'crypto', 'adas'].includes(project.kind) && <Showcase project={project} reduced={reduced} />}
 
               {m.images && (
                 <div className="grid gap-4 md:grid-cols-2">
-                  {m.images.map(([src, label], i) => (
-                    <motion.div key={label} initial={{ opacity: 0, x: i ? 16 : -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.18 + i * 0.1 }} className="group relative overflow-hidden rounded-xl border border-white/[0.07]">
-                      <img src={src} alt={label} loading="lazy" className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  {m.images.map(([src, label]) => (
+                    <div key={label} className="relative overflow-hidden rounded-xl border border-white/[0.07]">
+                      <img src={src} alt={label} loading="lazy" className="h-56 w-full object-cover" />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-sm font-medium text-white">{label}</div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -802,23 +640,21 @@ function DetailModal({ project, onClose, reduced }) {
               <div>
                 <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white"><Activity size={16} style={{ color: project.color }} />{m.title1}</div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {m.blocks.map(([t, Ic, c, d], i) => (
-                    <motion.div key={t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.06 }}
-                      whileHover={reduced ? {} : { y: -3 }} className="rounded-xl border p-4" style={{ borderColor: `${c}30`, background: `${c}0a` }}>
+                  {m.blocks.map(([t, Ic, c, d]) => (
+                    <div key={t} className="rounded-xl border p-4" style={{ borderColor: `${c}30`, background: `${c}0a` }}>
                       <div className="mb-2 flex items-center gap-2"><Ic size={15} style={{ color: c }} /><span className="text-sm font-semibold" style={{ color: c }}>{t}</span></div>
                       <p className="text-xs leading-relaxed text-gray-400">{d}</p>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
 
               {m.metrics.length > 0 && (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                  {m.metrics.map(([v, l], i) => (
-                    <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + i * 0.06, type: 'spring', stiffness: 200 }}
-                      className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
+                  {m.metrics.map(([v, l]) => (
+                    <div key={l} className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
                       <div className="mb-1 text-lg font-black" style={{ color: project.color }}>{v}</div><div className="text-[11px] leading-tight text-gray-500">{l}</div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -827,7 +663,7 @@ function DetailModal({ project, onClose, reduced }) {
                 <div>
                   <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white"><Terminal className="text-emerald-400" size={16} />Installation locale</div>
                   <div className="overflow-x-auto rounded-xl border border-white/[0.05] p-5 font-mono" style={{ background: 'rgba(4,6,14,.85)' }}>
-                    {m.steps.map((s) => <div key={s} className="text-xs leading-6 text-emerald-400"><span className="mr-2 select-none text-gray-600">$</span>{s}</div>)}
+                    {m.steps.map((s) => <div key={s} className="whitespace-nowrap text-xs leading-6 text-emerald-400"><span className="mr-2 select-none text-gray-600">$</span>{s}</div>)}
                   </div>
                 </div>
               )}
@@ -846,42 +682,35 @@ function DetailModal({ project, onClose, reduced }) {
   )
 }
 
-/* ═══ Aperçu « fenêtre de navigateur » animé (captures) ═══ */
+/* ═══ Aperçu « fenêtre de navigateur » (simple fondu entre captures) ═══ */
 function BrowserPreview({ shots, color, demo, reduced, onOpen }) {
   const [i, setI] = useState(0)
   const [paused, setPaused] = useState(false)
   useEffect(() => {
     if (reduced || paused || shots.length < 2) return
-    const t = setInterval(() => setI((v) => (v + 1) % shots.length), 3800)
+    const t = setInterval(() => setI((v) => (v + 1) % shots.length), 4200)
     return () => clearInterval(t)
   }, [reduced, paused, shots.length])
   const host = demo ? demo.replace(/^https?:\/\//, '').replace(/\/.*$/, '') : 'application locale'
   const [src, label] = shots[i]
   return (
     <div className="mb-6" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-      <div className="overflow-hidden rounded-xl border shadow-xl" style={{ borderColor: `${color}38`, background: 'rgba(4,8,22,.7)', boxShadow: `0 18px 50px ${color}1f` }}>
+      <div className="overflow-hidden rounded-xl border" style={{ borderColor: `${color}38`, background: 'rgba(4,8,22,.7)' }}>
         <div className="flex items-center gap-2 border-b border-white/[0.06] bg-white/[0.03] px-3 py-2">
-          <span className="flex gap-1.5" aria-hidden="true">
-            <i className="h-2 w-2 rounded-full bg-red-400/70" /><i className="h-2 w-2 rounded-full bg-amber-300/70" /><i className="h-2 w-2 rounded-full bg-emerald-400/70" />
-          </span>
-          <span className="mx-auto flex max-w-[70%] flex-1 items-center justify-center gap-1.5 truncate rounded-md bg-black/30 px-3 py-0.5 text-[10px] text-gray-500">
-            <Lock size={9} aria-hidden="true" />{host}
-          </span>
+          <span className="flex gap-1.5" aria-hidden="true"><i className="h-2 w-2 rounded-full bg-red-400/70" /><i className="h-2 w-2 rounded-full bg-amber-300/70" /><i className="h-2 w-2 rounded-full bg-emerald-400/70" /></span>
+          <span className="mx-auto flex max-w-[70%] flex-1 items-center justify-center gap-1.5 truncate rounded-md bg-black/30 px-3 py-0.5 text-[10px] text-gray-500"><Lock size={9} aria-hidden="true" />{host}</span>
         </div>
         <div className="group/shot relative h-48 overflow-hidden sm:h-60">
           <AnimatePresence initial={false}>
-            <motion.img key={src} src={src} alt={label} loading="lazy"
-              initial={reduced ? false : { opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
-              transition={{ duration: 0.75, ease: EASE }}
-              className="absolute inset-0 h-full w-full object-cover object-top transition-[object-position] duration-[2400ms] ease-in-out group-hover/shot:object-[50%_32%]" />
+            <motion.img key={src} src={src} alt={label} loading="lazy" initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+              className="absolute inset-0 h-full w-full object-cover object-top" />
           </AnimatePresence>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 to-transparent" aria-hidden="true" />
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3">
-            <p className="text-[11px] font-medium leading-tight text-white" aria-live="off">{label}</p>
+            <p className="text-[11px] font-medium leading-tight text-white">{label}</p>
             <div className="flex items-center gap-0.5">
               {shots.map(([, l], k) => (
-                <button key={l} type="button" onClick={() => setI(k)} aria-label={`Afficher la capture : ${l}`} aria-current={k === i}
-                  className="flex h-6 w-5 items-center justify-center">
+                <button key={l} type="button" onClick={() => setI(k)} aria-label={`Afficher la capture : ${l}`} aria-current={k === i} className="flex h-6 w-5 items-center justify-center">
                   <span className="block h-1.5 rounded-full transition-all duration-300" style={{ width: k === i ? 18 : 6, background: k === i ? color : 'rgba(255,255,255,.35)' }} />
                 </button>
               ))}
@@ -889,9 +718,7 @@ function BrowserPreview({ shots, color, demo, reduced, onOpen }) {
           </div>
           {onOpen && (
             <button type="button" onClick={onOpen} aria-label="Ouvrir le détail du projet et toutes les captures"
-              className="absolute right-2 top-2 rounded-lg bg-black/45 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 focus-visible:opacity-100 group-hover/shot:opacity-100">
-              <Maximize2 size={13} />
-            </button>
+              className="absolute right-2 top-2 rounded-lg bg-black/45 p-1.5 text-white opacity-0 transition-opacity duration-200 focus-visible:opacity-100 group-hover/shot:opacity-100"><Maximize2 size={13} /></button>
           )}
         </div>
       </div>
@@ -907,77 +734,49 @@ function CountUp({ value, reduced }) {
   const [n, setN] = useState(m && !reduced ? 0 : m ? Number(m[1]) : 0)
   useEffect(() => {
     if (!m || reduced || !inView) return
-    const c = animate(0, Number(m[1]), { duration: 1.4, ease: EASE, onUpdate: (v) => setN(Math.round(v)) })
+    const c = animate(0, Number(m[1]), { duration: 1.2, ease: EASE, onUpdate: (v) => setN(Math.round(v)) })
     return () => c.stop()
   }, [inView]) // eslint-disable-line react-hooks/exhaustive-deps
   return <span ref={ref}>{m ? `${n}${m[2]}` : value}</span>
 }
 
-/* ═══ Carte projet ═══ */
-function ProjectCard({ project: p, index, reduced, onOpen }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
-  const [hov, setHov] = useState(false)
-  const fine = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer:fine)').matches
-  const tilt = !reduced && fine
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [4, -4]), { stiffness: 200, damping: 22 })
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-5, 5]), { stiffness: 200, damping: 22 })
-  const onMove = (e) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    const x = (e.clientX - r.left) / r.width
-    const y = (e.clientY - r.top) / r.height
-    ref.current?.style.setProperty('--mx', `${x * 100}%`)
-    ref.current?.style.setProperty('--my', `${y * 100}%`)
-    if (tilt) { mx.set(x - 0.5); my.set(y - 0.5) }
-  }
-  const onLeave = () => { setHov(false); mx.set(0); my.set(0) }
+/* ═══ Carte projet — animation simplifiée ═══ */
+function ProjectCard({ project: p, reduced, onOpen }) {
   const Icon = p.icon
-  const btn = 'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200'
+  const btn = 'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200'
   const ribbonBg = p.kind === 'pfe' ? 'linear-gradient(90deg,#7c3aed,#4f46e5)' : p.cube ? 'linear-gradient(90deg,#6366f1,#8b5cf6,#06b6d4)' : p.kind === 'crypto' ? 'linear-gradient(90deg,#06b6d4,#3b82f6,#6366f1)' : p.kind === 'adas' ? 'linear-gradient(90deg,#14b8a6,#10b981,#22c55e)' : 'linear-gradient(90deg,#3b82f6,#6366f1,#06b6d4)'
   const Label = ({ icon: I, children }) => <div className="mb-3 flex items-center gap-2"><I size={13} style={{ color: p.color }} /><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">{children}</span></div>
-  const Bullet = <div className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r ${p.gradient}`} />
 
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 44, scale: 0.92, filter: 'blur(10px)' }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' } : {}}
-      transition={{ duration: 0.7, delay: (index % 4) * 0.1, ease: BACK }}
-      onMouseEnter={() => setHov(true)} onMouseMove={onMove} onMouseLeave={onLeave}
-      className={`group relative flex h-full flex-col ${p.wide ? 'lg:col-span-2' : ''}`}>
-      <div className={`pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br ${p.gradient} blur-3xl transition-opacity duration-500`}
-        style={{ opacity: hov && !reduced ? 0.3 : 0 }} aria-hidden="true" />
-      <motion.div whileHover={reduced ? {} : { y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-        className={`relative flex h-full flex-col overflow-hidden rounded-2xl border shadow-2xl transition-colors duration-300 ${p.neon ? 'pj-neon' : ''}`}
-        style={{ '--nc': p.neon, rotateX: tilt ? rx : 0, rotateY: tilt ? ry : 0, transformPerspective: 1000, borderColor: hov ? `${p.color}73` : `${p.color}33`, backdropFilter: 'blur(28px)',
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.55, ease: EASE }}
+      className={`relative flex h-full flex-col ${p.wide ? 'lg:col-span-2' : ''}`}>
+      <div className="pj-box relative flex h-full flex-col overflow-hidden rounded-2xl border"
+        style={{ '--hc': `${p.color}80`, '--gl': `${p.color}2e`, borderColor: `${p.color}33`, boxShadow: `0 20px 50px ${p.color}14`,
           background: `linear-gradient(145deg,${p.color}${p.wide || p.cube || p.highlight ? '22' : '0d'} 0%,rgba(8,12,32,.95) 55%,rgba(8,10,20,.98) 100%)` }}>
-        <motion.div initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ delay: 0.4, duration: 0.9, ease: EASE }}
-          style={{ originX: 0.5 }} className={`absolute left-0 right-0 top-0 h-px bg-gradient-to-r ${p.gradient}`} />
-        <div className="pointer-events-none absolute inset-0 transition-opacity duration-500" aria-hidden="true"
-          style={{ opacity: hov && !reduced ? 1 : 0, background: `radial-gradient(420px circle at var(--mx,50%) var(--my,0%),${p.color}26 0%,transparent 62%)` }} />
+        <div className={`absolute left-0 right-0 top-0 h-px bg-gradient-to-r ${p.gradient}`} />
 
         {p.ribbon && (
-          <motion.div initial={{ x: -60, opacity: 0 }} animate={inView ? { x: 0, opacity: 1 } : {}} transition={{ delay: 0.45, duration: 0.6, ease: EASE }}
-            className="absolute left-0 top-5 z-10 flex items-center gap-1.5 rounded-r-full py-1 pl-4 pr-3 text-xs font-bold text-white shadow-lg" style={{ background: ribbonBg }}>
+          <div className="absolute left-0 top-5 z-10 flex items-center gap-1.5 rounded-r-full py-1 pl-4 pr-3 text-xs font-bold text-white shadow-lg" style={{ background: ribbonBg }}>
             {p.kind === 'pfe' ? <Star size={11} fill="white" /> : p.cube ? <Box size={11} /> : p.kind === 'crypto' ? <TrendingUp size={11} /> : p.kind === 'adas' ? <Eye size={11} /> : <Server size={11} />}{p.ribbon}
-          </motion.div>
+          </div>
         )}
         <span className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold"
           style={{ color: p.color, borderColor: `${p.color}55`, background: `${p.color}22` }}>
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: p.color }} />{p.status}
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: p.color }} />{p.status}
         </span>
 
         <div className={`flex flex-1 flex-col p-7 ${p.ribbon ? 'pt-14' : 'pt-12'}`}>
           <div className="mb-6 flex items-start gap-4 pr-28">
-            <motion.div whileHover={reduced ? {} : { rotate: 10, scale: 1.1 }} transition={{ type: 'spring', stiffness: 300, damping: 14 }} className="relative flex-shrink-0">
-              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${p.gradient} opacity-40 blur-md`} />
+            <div className="relative flex-shrink-0">
+              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${p.gradient} opacity-30 blur-md`} />
               {p.cube
                 ? <div className="relative rounded-2xl bg-gradient-to-br from-indigo-900/60 to-indigo-800/40 p-3 shadow-xl ring-1 ring-indigo-500/30"><Cube s={52} /></div>
                 : <div className={`relative rounded-2xl bg-gradient-to-br ${p.gradient} p-4 shadow-xl ring-1 ring-white/15`}><Icon className="text-white" size={26} /></div>}
-              <div className="absolute inset-0 animate-ping rounded-2xl border border-white/20" style={{ animationDelay: `${index * 0.3}s`, animationDuration: '3s' }} />
-            </motion.div>
+            </div>
             <div className="min-w-0 flex-1">
-              <h3 className="mb-1.5 text-xl font-bold leading-tight text-white transition-colors duration-300 group-hover:text-blue-100">{p.title}</h3>
+              <h3 className="mb-1.5 text-xl font-bold leading-tight text-white">{p.title}</h3>
               <p className="text-sm leading-relaxed text-gray-400">{p.description}</p>
             </div>
           </div>
@@ -986,22 +785,19 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
 
           <div className={`mb-6 grid items-start gap-6 ${p.wide ? 'lg:grid-cols-2' : ''}`}>
             <div className="space-y-5">
-              
               <div>
                 <Label icon={Cpu}>Stack technique</Label>
                 <div className="flex flex-wrap gap-1.5">
-                  {p.tech.map((t) => (
-                    <motion.span key={t} whileHover={reduced ? {} : { scale: 1.07, y: -2 }} transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                      className="cursor-default rounded-lg border border-white/[0.08] bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-gray-300 transition-colors hover:border-white/20 hover:text-white">{t}</motion.span>
-                  ))}
+                  {p.tech.map((t) => <span key={t} className="rounded-lg border border-white/[0.08] bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-gray-300">{t}</span>)}
                 </div>
               </div>
               <div>
                 <Label icon={Zap}>Fonctionnalités</Label>
                 <ul className="space-y-1.5">
-                  {p.features.map((f, i) => (
-                    <motion.li key={f} initial={{ opacity: 0, x: -12 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ delay: 0.4 + i * 0.06, ease: EASE }}
-                      className="flex items-start gap-2 text-sm text-gray-400">{Bullet}{f}</motion.li>
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-gray-400">
+                      <div className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r ${p.gradient}`} />{f}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -1011,49 +807,40 @@ function ProjectCard({ project: p, index, reduced, onOpen }) {
                 </div>
               )}
             </div>
-            
+
             {p.side && (
               <div className="grid grid-cols-2 gap-2">
-                {p.side.map(([v, l], i) => (
-                  <motion.div key={l} initial={{ opacity: 0, scale: 0.85 }} animate={inView ? { opacity: 1, scale: 1 } : {}} transition={{ delay: 0.4 + i * 0.07, type: 'spring', stiffness: 200 }}
-                    className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
+                {p.side.map(([v, l]) => (
+                  <div key={l} className="rounded-xl border border-white/[0.06] p-4 text-center" style={{ background: 'rgba(255,255,255,.03)' }}>
                     <div className="text-xl font-black" style={{ color: p.color }}>{v}</div><div className="text-[11px] text-gray-500">{l}</div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
           </div>
 
           <div className="mt-auto flex flex-wrap gap-2.5">
-            {p.code && <motion.a whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} href={p.code} target="_blank" rel="noopener noreferrer" className={`${btn} border border-white/[0.08] bg-white/[0.05] text-white hover:bg-white/[0.09]`}><Github size={16} />Code</motion.a>}
-            {p.demo && <motion.a whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} href={p.demo} target="_blank" rel="noopener noreferrer" className={`${btn} pj-btn bg-gradient-to-r ${p.gradient} text-white shadow-lg`}><Eye size={16} />Démo Live<ArrowUpRight size={14} /></motion.a>}
-            {p.modal && <motion.button whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }} onClick={() => onOpen(p)} className={`${btn} border text-white`} style={{ borderColor: `${p.color}55`, background: `${p.color}26` }}>
-              {p.cube ? <Box size={16} /> : <Cpu size={16} />}{p.kind ? 'Architecture' : p.cube ? 'Voir le projet' : 'Voir Démo'}</motion.button>}
+            {p.code && <a href={p.code} target="_blank" rel="noopener noreferrer" className={`${btn} border border-white/[0.08] bg-white/[0.05] text-white hover:bg-white/[0.1]`}><Github size={16} />Code</a>}
+            {p.demo && <a href={p.demo} target="_blank" rel="noopener noreferrer" className={`${btn} bg-gradient-to-r ${p.gradient} text-white shadow-lg hover:brightness-110`}><Eye size={16} />Démo Live<ArrowUpRight size={14} /></a>}
+            {p.modal && <button type="button" onClick={() => onOpen(p)} className={`${btn} border text-white hover:brightness-125`} style={{ borderColor: `${p.color}55`, background: `${p.color}26` }}>
+              {p.cube ? <Box size={16} /> : <Cpu size={16} />}{p.kind ? 'Architecture' : p.cube ? 'Voir le projet' : 'Voir Démo'}</button>}
           </div>
         </div>
-        <div className="absolute bottom-3 right-3 flex gap-1 opacity-20" aria-hidden="true">
-          {[0, 1, 2].map((i) => <div key={i} className="h-1 w-1 animate-pulse rounded-full bg-white" style={{ animationDelay: `${i * 0.2}s` }} />)}
-        </div>
-      </motion.div>
+      </div>
     </motion.div>
   )
 }
 
 /* ═══ Statistiques du bas ═══ */
 function StatCard({ s, i, reduced }) {
-  const [hov, setHov] = useState(false)
   return (
-    <motion.div initial={{ opacity: 0, y: 20, scale: 0.88, filter: 'blur(8px)' }} whileInView={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }} viewport={{ once: true }}
-      transition={{ delay: i * 0.09, duration: 0.6, ease: BACK }} whileHover={reduced ? {} : { y: -6, scale: 1.03 }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      className="relative cursor-default overflow-hidden rounded-[22px] border border-white/[0.06] p-6 text-center"
-      style={{ background: 'linear-gradient(145deg,rgba(13,20,42,.95),rgba(8,10,20,.98))', backdropFilter: 'blur(24px)', boxShadow: '0 20px 60px rgba(0,0,0,.5)' }}>
-      <motion.div initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.09 + 0.3, duration: 0.9, ease: EASE }}
-        style={{ originX: 0.5 }} className={`absolute left-6 right-6 top-0 h-px rounded-full bg-gradient-to-r ${s.g}`} />
-      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl transition-opacity duration-500" style={{ background: `linear-gradient(135deg,${s.gr})`, opacity: hov ? 0.16 : 0.04 }} aria-hidden="true" />
+    <motion.div initial={reduced ? false : { opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+      transition={{ delay: i * 0.06, duration: 0.5, ease: EASE }}
+      className="relative overflow-hidden rounded-[22px] border border-white/[0.06] p-6 text-center"
+      style={{ background: 'linear-gradient(145deg,rgba(13,20,42,.95),rgba(8,10,20,.98))', boxShadow: '0 20px 60px rgba(0,0,0,.5)' }}>
+      <div className={`absolute left-6 right-6 top-0 h-px rounded-full bg-gradient-to-r ${s.g}`} />
       <div className={`mb-2 bg-gradient-to-r ${s.g} bg-clip-text text-2xl font-black tabular-nums text-transparent md:text-3xl`}><CountUp value={s.v} reduced={reduced} /></div>
       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">{s.l}</div>
-      <div className="mx-auto mt-3 h-px rounded-full transition-all duration-500" style={{ width: hov ? '65%' : '28%', opacity: hov ? 1 : 0.4, background: `linear-gradient(90deg,${s.gr})` }} />
     </motion.div>
   )
 }
@@ -1068,10 +855,10 @@ export default function Projects() {
   const visible = filter === 'tous' ? PROJECTS : PROJECTS.filter((p) => p.featured)
   const tabs = [{ k: 'phares', l: `Projets phares (${PROJECTS.filter((p) => p.featured).length})` }, { k: 'tous', l: `Tous (${PROJECTS.length})` }]
   const stats = [
-    { v: `${PROJECTS.length}+`, l: 'Projets réalisés', g: 'from-blue-400 to-cyan-400', gr: '#60a5fa,#22d3ee' },
-    { v: '10+', l: 'Technologies maîtrisées', g: 'from-purple-400 to-pink-400', gr: '#c084fc,#f472b6' },
-    { v: 'SaaS · Edge AI', l: 'Spécialités', g: 'from-violet-400 to-indigo-400', gr: '#a78bfa,#6366f1' },
-    { v: '17/20', l: 'Mention Très Bien', g: 'from-amber-400 to-orange-400', gr: '#fbbf24,#f97316' },
+    { v: `${PROJECTS.length}+`, l: 'Projets réalisés', g: 'from-blue-400 to-cyan-400' },
+    { v: '10+', l: 'Technologies maîtrisées', g: 'from-purple-400 to-pink-400' },
+    { v: 'SaaS · Edge AI', l: 'Spécialités', g: 'from-violet-400 to-indigo-400' },
+    { v: '17/20', l: 'Mention Très Bien', g: 'from-amber-400 to-orange-400' },
   ]
   const star = (cls) => <Star size={13} className={`flex-shrink-0 text-blue-400/50 ${reduced ? '' : cls}`} />
 
@@ -1081,13 +868,9 @@ export default function Projects() {
       <section id="projects" className="relative overflow-hidden py-36" style={{ background: 'linear-gradient(180deg,rgba(2,8,23,0) 0%,rgba(2,8,23,.55) 40%,rgba(2,8,23,.62) 100%)' }}>
         <div className="pointer-events-none absolute inset-0" aria-hidden="true" style={{ backgroundImage: 'radial-gradient(circle,rgba(148,163,184,.038) 1px,transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="pointer-events-none absolute inset-0" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 82% 68% at 50% 50%,transparent 38%,rgba(2,8,23,.52) 100%)' }} />
-        <motion.div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-32 h-[380px] w-[380px] rounded-full opacity-[0.06] blur-[88px]"
-          style={{ background: 'radial-gradient(circle,#1e40af,#6d28d9)' }} animate={reduced ? {} : { x: [0, 28, -14, 0], y: [0, -18, 22, 0] }} transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }} />
-        <motion.div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-32 h-[320px] w-[320px] rounded-full opacity-[0.05] blur-[88px]"
-          style={{ background: 'radial-gradient(circle,#7c3aed,#0891b2)' }} animate={reduced ? {} : { x: [0, -22, 18, 0], y: [0, 16, -12, 0] }} transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }} />
 
         <div className="container relative z-10 mx-auto max-w-[1400px] px-4 md:px-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }} variants={stagger(0, 0.1)} className="mb-24 text-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }} variants={stagger(0, 0.08)} className="mb-24 text-center">
             <motion.div variants={fadeUp} className="mb-10 inline-flex items-center gap-2.5 rounded-full border border-blue-500/20 bg-blue-500/[0.055] px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.24em] text-blue-400 shadow-xl shadow-blue-900/20 backdrop-blur-xl">
               <Sparkles size={11} className={reduced ? '' : 'pj-spin'} />Portfolio<Sparkles size={11} className={reduced ? '' : 'pj-spin-r'} />
             </motion.div>
@@ -1095,15 +878,14 @@ export default function Projects() {
               <span className="text-white">Mes </span>
               <span className="relative inline-block">
                 <span className={reduced ? 'bg-clip-text text-transparent' : 'pj-gt'} style={{ backgroundImage: 'linear-gradient(90deg,#60a5fa 0%,#a78bfa 30%,#f472b6 60%,#60a5fa 100%)' }}>Projets</span>
-                <motion.div initial={{ scaleX: 0, opacity: 0 }} whileInView={{ scaleX: 1, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.7, duration: 1.2, ease: EASE }}
-                  style={{ originX: 0.5 }} className="absolute -bottom-3 left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-transparent via-violet-400/75 to-transparent blur-sm" />
+                <span className="absolute -bottom-3 left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-transparent via-violet-400/75 to-transparent blur-sm" />
               </span>
             </motion.h2>
             <motion.p variants={fadeUp} className="mx-auto max-w-2xl text-base leading-relaxed text-gray-400 md:text-lg">
               Une sélection de projets qui démontrent mes compétences en <span className="font-semibold text-white">développement Full-Stack</span> et ma passion pour l'
               <span className="font-semibold" style={{ background: 'linear-gradient(90deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>innovation</span>
             </motion.p>
-            <motion.div initial={{ opacity: 0, scaleX: 0 }} whileInView={{ opacity: 1, scaleX: 1 }} viewport={{ once: true }} transition={{ delay: 0.55, duration: 1.1, ease: EASE }} className="mx-auto mt-12 flex max-w-[200px] items-center gap-4">
+            <motion.div variants={fadeUp} className="mx-auto mt-12 flex max-w-[200px] items-center gap-4">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />{star('pj-spin')}<div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
             </motion.div>
           </motion.div>
@@ -1111,29 +893,26 @@ export default function Projects() {
           <div className="mb-14 flex justify-center">
             <div className="inline-flex gap-1 rounded-full border border-white/[0.07] p-1.5 backdrop-blur-xl" style={{ background: 'rgba(13,20,42,.8)' }} role="tablist" aria-label="Filtrer les projets">
               {tabs.map((t) => (
-                <motion.button key={t.k} role="tab" aria-selected={filter === t.k} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={() => setFilter(t.k)}
+                <button key={t.k} role="tab" aria-selected={filter === t.k} onClick={() => setFilter(t.k)}
                   className={`relative rounded-full px-6 py-2.5 text-sm font-semibold transition-colors duration-200 ${filter === t.k ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}>
-                  {filter === t.k && <motion.div layoutId="proj-filter" className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600" transition={{ type: 'spring', stiffness: 340, damping: 28 }} />}
+                  {filter === t.k && <motion.div layoutId="proj-filter" className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
                   <span className="relative z-10">{t.l}</span>
-                </motion.button>
+                </button>
               ))}
             </div>
           </div>
 
-          <AnimatePresence mode="popLayout">
-            <motion.div key={filter} layout initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -12, filter: 'blur(6px)' }} transition={{ duration: 0.38, ease: EASE }} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {visible.map((p, i) => <ProjectCard key={p.id} project={p} index={i} reduced={reduced} onOpen={setOpen} />)}
-            </motion.div>
-          </AnimatePresence>
+          <div key={filter} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {visible.map((p) => <ProjectCard key={p.id} project={p} reduced={reduced} onOpen={setOpen} />)}
+          </div>
 
-          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.75, ease: EASE }} className="mt-20 border-t border-white/[0.05] pt-12">
+          <div className="mt-20 border-t border-white/[0.05] pt-12">
             <div className="grid grid-cols-2 gap-5 md:grid-cols-4">{stats.map((s, i) => <StatCard key={s.l} s={s} i={i} reduced={reduced} />)}</div>
-          </motion.div>
+          </div>
 
-          <motion.div initial={{ opacity: 0, scaleX: 0 }} whileInView={{ opacity: 1, scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.82, ease: EASE }} className="mx-auto mt-16 flex max-w-[130px] items-center gap-3">
+          <div className="mx-auto mt-16 flex max-w-[130px] items-center gap-3">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-indigo-500/25 to-transparent" />{star('pj-spin-r')}<div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/25 to-transparent" />
-          </motion.div>
+          </div>
         </div>
 
         <DetailModal project={open} onClose={close} reduced={reduced} />
